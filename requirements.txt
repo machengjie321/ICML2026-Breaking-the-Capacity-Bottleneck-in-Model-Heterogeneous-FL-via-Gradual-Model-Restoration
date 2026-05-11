@@ -1,0 +1,13 @@
+numpy
+torch
+torchvision
+tqdm
+Pillow
+matplotlib
+lmdb
+opencv-python-headless
+pynvml
+
+# Optional: required only for automatic StackOverflow preprocessing
+# tensorflow
+# tensorflow_federated

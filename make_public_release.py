@@ -91,31 +91,53 @@ Around this core mechanism, the project also includes:
 
 ## Main Figures
 
-### 1. Stage-dependent benefit of model density
+### 1. FedGMR framework and core idea
+
+This is the main idea figure of the paper. FedGMR starts from the observation that bandwidth-constrained clients can benefit from small sub-models early, but should gradually recover model capacity later to remain useful global contributors.
+
+![FedGMR framework](FedGMR/GMR_framework.png)
+
+### 2. Stage-dependent benefit of model density
 
 This figure illustrates the central empirical observation behind FedGMR: smaller sub-models improve faster early, while larger-capacity models become more beneficial later.
 
 ![Learning-rate analysis](FedGMR/learning_rate_different_density_models_strip.png)
 
-### 2. Cross-method gains from GMR
+### 3. Cross-method gains from GMR
 
 Applying GMR to multiple MHFL baselines consistently improves performance. This supports that the main contribution is the **restoration mechanism itself**, rather than one specific pruning rule or one specific base method.
 
 ![Cross-method comparison](FedGMR/GMR_on_other_MHFL_methods.png)
 
-### 3. Aggregation and ablation analysis
+### 4. Aggregation and ablation analysis
 
 The ablation results highlight that restoration and aggregation are coupled: GMR improves late-stage usefulness, while mask-aware aggregation helps maintain stability during restoration.
 
 ![Ablation analysis](FedGMR/Ablation_method.png)
 
-### 4. Robustness to restoration timing
+### 5. Robustness to restoration timing
 
 FedGMR does not depend on one exact restoration trigger. A fixed-time restoration variant remains effective across datasets, although adaptive triggering can further improve some settings.
 
 ![Fixed-time restoration](FedGMR/Fixed_restoration_timeing_plot.png)
 
 ## Representative Results
+
+### Main baseline comparison under high heterogeneity
+
+The table below summarizes the main baseline comparison from the paper under the hardest setting, where the gain from gradual restoration is most visible.
+
+| Method | FEMNIST IID | FEMNIST Non-IID | CIFAR-10 IID | CIFAR-10 Non-IID | ImageNet-100 IID | ImageNet-100 Non-IID | StackOverflow IID | StackOverflow Non-IID |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| **FedGMR** | **82.67** | **81.86** | **84.52** | **81.68** | **60.84** | **58.01** | **30.00** | **30.07** |
+| FedAvg | 75.62 | 74.64 | 70.75 | 68.46 | 48.65 | 47.46 | 24.38 | 24.38 |
+| FedAsync | 81.34 | 81.03 | 82.86 | 79.28 | 58.19 | 55.36 | 25.86 | 25.83 |
+| HeteroFL | 82.22 | 79.80 | 81.06 | 75.64 | 41.90 | 28.01 | 29.42 | 29.17 |
+| FedRolex | 82.19 | 77.83 | 80.85 | 67.82 | 32.17 | 15.26 | 25.39 | 25.15 |
+| FjORD | 82.59 | 81.85 | 81.79 | 81.34 | 41.18 | 32.93 | 29.18 | 27.73 |
+| FIARSE | 81.22 | 78.77 | 74.04 | 69.19 | 54.00 | 48.27 | 28.77 | 28.57 |
+
+Under high heterogeneity, FedGMR achieves the strongest gains on the hardest settings, especially on CIFAR-10 and ImageNet-100 under Non-IID splits. This is where fixed low-density sub-models suffer the most from late-stage capacity limits.
 
 ### Cross-method gains on FEMNIST
 
