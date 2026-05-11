@@ -33,7 +33,13 @@ This is the main idea figure of the paper. FedGMR starts from the observation th
 
 ![FedGMR framework](FedGMR/GMR_framework.png)
 
-### 2. Main baseline comparison under high heterogeneity
+### 2. Initial experimental validation of the motivation
+
+Before introducing the full method, the paper first validates the core motivation empirically: smaller sub-models can be advantageous in the early stage, but larger-capacity models become more useful later. This stage-dependent crossover is the direct motivation for gradual restoration.
+
+![Learning-rate analysis](FedGMR/learning_rate_different_density_models_strip.png)
+
+### 3. Main baseline comparison under high heterogeneity
 
 The table below summarizes the main baseline comparison from the paper under the hardest setting, where the gain from gradual restoration is most visible.
 
@@ -48,12 +54,6 @@ The table below summarizes the main baseline comparison from the paper under the
 | FIARSE | 81.22 | 78.77 | 74.04 | 69.19 | 54.00 | 48.27 | 28.77 | 28.57 |
 
 Under high heterogeneity, FedGMR achieves the strongest gains on the hardest settings, especially on CIFAR-10 and ImageNet-100 under Non-IID splits. This is where fixed low-density sub-models suffer the most from late-stage capacity limits.
-
-### 3. Stage-dependent benefit of model density
-
-This figure illustrates the central empirical observation behind FedGMR: smaller sub-models improve faster early, while larger-capacity models become more beneficial later.
-
-![Learning-rate analysis](FedGMR/learning_rate_different_density_models_strip.png)
 
 ### 4. Cross-method gains from GMR
 
