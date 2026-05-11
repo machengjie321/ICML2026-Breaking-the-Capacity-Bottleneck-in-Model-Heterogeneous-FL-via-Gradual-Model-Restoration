@@ -164,6 +164,16 @@ The ablation results highlight that restoration and aggregation are coupled: GMR
 
 In the paper, this figure is complemented by two appendix tables with the full numerical ablations. Those tables cover `w/o Asyn`, `w/o GMR`, `w/o Buff`, `w/o IMS`, and `w/o (Buff, IMS)` across IID/Non-IID splits and different heterogeneity levels, so the figure here should be read as a visual summary rather than the complete ablation record.
 
+We also report aggregation-rule comparisons in the paper. The full tables cover `GMR + MA`, `GMR + GA`, `GMR + FA`, and their `w/o GMR` counterparts across High/Medium/Low heterogeneity under both IID and Non-IID splits. A representative High-heterogeneity, Non-IID slice is:
+
+| Method | FEMNIST | CIFAR-10 | ImageNet100 | StackOverflow |
+|---|---:|---:|---:|---:|
+| GMR + MA | **81.86** | **81.68** | **58.01** | **30.07** |
+| GMR + GA | 80.95 | 78.83 | 57.32 | 29.71 |
+| GMR + FA | 79.79 | 10.00 | 55.22 | 28.24 |
+
+This matches the main conclusion in the paper: when restoration is active, mask-aware aggregation (MA) is the most reliable companion to GMR, while GA is weaker and FA can become unstable under strong structural heterogeneity.
+
 ### 6. Robustness to restoration timing
 
 FedGMR does not depend on one exact restoration trigger. A fixed-time restoration variant remains effective across datasets, although adaptive triggering can further improve some settings.
