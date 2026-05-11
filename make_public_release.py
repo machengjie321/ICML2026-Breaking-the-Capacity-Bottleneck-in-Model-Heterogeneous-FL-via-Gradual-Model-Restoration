@@ -111,7 +111,7 @@ Around this core mechanism, the project also includes:
 - **Theory for heterogeneous sub-model training.** The analysis characterizes the bias and variance introduced by incomplete client updates, highlights the role of average density and coverage, and shows that GMR narrows the optimization gap toward full-model FL.
 - **Cross-method generality.** GMR is effective not only in the proposed framework but also when applied on top of other MHFL methods.
 
-## Main Figures and Results
+## Main Idea and Results
 
 ### 1. FedGMR framework and core idea
 
