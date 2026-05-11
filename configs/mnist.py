@@ -7,16 +7,11 @@ NUM_TRAIN_DATA = 60000
 NUM_TEST_DATA = 10000
 model_size = 0.084808349609375
 
-n1 = 2
-n2 = 2
-n3 = 2
-n4 = 4
-average_download_speed = [20.0,18.0]+[12,10]+[6.0,4.0]+[2.5,2.0,2.0,1.5]
-average_upload_speed = [5.0,4.0]+[3.0,2.5]+[1.5,1.0]+[0.6,0.50,0.50,0.4]
-client_density = [1.0]*n1+[0.6]*n2+[0.3]*n3+[0.1]*n4
+
+download_speed = 20
+upload_speed = 5
 
 holistic_coeff = 10
-list_client_coeff = [1.0]*n1+[client_density[0]/client_density[n1]]*n2+[client_density[0]/client_density[n1+n2]]*n3
 min_density = 0.08
 
 acc_sign = 0.01
@@ -61,10 +56,10 @@ MAX_ROUND = 10001
 
 MAX_ROUND_CONVENTIONAL_FL=1000
 MAX_ROUND_ADAPTIVE=10000
-# test_num = 4
-# train_num = 4
 test_num = 0
 train_num = 0
+# test_num = 0
+# train_num = 0
 patience = 15
 asyn_interval = 0.5
 # Iterative pruning config

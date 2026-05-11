@@ -1,24 +1,25 @@
 from copy import deepcopy
 import torch
 import torch.nn as nn
-from .utils import is_fc, is_conv
+import math
+from .utils import is_fc, is_conv, Scaler
 from .base_model import BaseModel
 from bases.nn.linear import DenseLinear
 from bases.nn.conv2d import DenseConv2d
 
-__all__ = ["resnet18", "resnet34", "resnet50", "resnet101", "resnet152", "resnext50_32x4d", "resnext101_32x8d",
+__all__ = ["resnet14","resnet18", "resnet34", "resnet50", "resnet101", "resnet152", "resnext50_32x4d", "resnext101_32x8d",
            "wide_resnet50_2", "wide_resnet101_2"]
 
 
-def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1):
+def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1, bern=False):
     """3x3 convolution with padding"""
     return DenseConv2d(in_planes, out_planes, kernel_size=3, stride=stride,
-                       padding=dilation, groups=groups, use_bias=False, dilation=dilation)
+                       padding=dilation, groups=groups, use_bias=False, dilation=dilation,bern = bern)
 
 
-def conv1x1(in_planes, out_planes, stride=1):
+def conv1x1(in_planes, out_planes, stride=1, bern=False):
     """1x1 convolution"""
-    return DenseConv2d(in_planes, out_planes, kernel_size=1, stride=stride, use_bias=False)
+    return DenseConv2d(in_planes, out_planes, kernel_size=1, stride=stride, use_bias=False,bern = bern)
 
 
 def conv1x1_no_prune(in_planes, out_planes, stride=1):
@@ -30,7 +31,7 @@ class BasicBlock(nn.Module):
     expansion = 1
 
     def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
-                 base_width=64, dilation=1, norm_layer=None):
+                 base_width=64, dilation=1, norm_layer=None, bern=False, model_rate=1):
         super(BasicBlock, self).__init__()
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
@@ -39,22 +40,25 @@ class BasicBlock(nn.Module):
         if dilation > 1:
             raise NotImplementedError("Dilation > 1 not supported in BasicBlock")
         # Both self.conv1 and self.downsample layers downsample the input when stride != 1
-        self.conv1 = conv3x3(inplanes, planes, stride)
+        self.conv1 = conv3x3(inplanes, planes, stride,bern = bern)
         self.bn1 = norm_layer(planes)
         self.relu = nn.ReLU(inplace=True)
-        self.conv2 = conv3x3(planes, planes)
+        self.conv2 = conv3x3(planes, planes,bern = bern)
         self.bn2 = norm_layer(planes)
         self.downsample = downsample
         self.stride = stride
+        self.scaler = Scaler(model_rate ** 0.5) if model_rate != 1 else nn.Identity()
 
     def forward(self, x):
         identity = x
 
         out = self.conv1(x)
+        out = self.scaler(out)
         out = self.bn1(out)
         out = self.relu(out)
 
         out = self.conv2(out)
+        out = self.scaler(out)
         out = self.bn2(out)
 
         if self.downsample is not None:
@@ -76,34 +80,38 @@ class Bottleneck(nn.Module):
     expansion = 4
 
     def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
-                 base_width=64, dilation=1, norm_layer=None):
+                 base_width=64, dilation=1, norm_layer=None, bern=False, model_rate=1):
         super(Bottleneck, self).__init__()
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
         width = int(planes * (base_width / 64.)) * groups
         # Both self.conv2 and self.downsample layers downsample the input when stride != 1
-        self.conv1 = conv1x1(inplanes, width)
+        self.conv1 = conv1x1(inplanes, width,bern = bern)
         self.bn1 = norm_layer(width)
-        self.conv2 = conv3x3(width, width, stride, groups, dilation)
+        self.conv2 = conv3x3(width, width, stride, groups, dilation,bern = bern)
         self.bn2 = norm_layer(width)
-        self.conv3 = conv1x1(width, planes * self.expansion)
+        self.conv3 = conv1x1(width, planes * self.expansion, bern = bern)
         self.bn3 = norm_layer(planes * self.expansion)
         self.relu = nn.ReLU(inplace=True)
         self.downsample = downsample
         self.stride = stride
+        self.scaler = Scaler(model_rate ** 0.5) if model_rate != 1 else nn.Identity()
 
     def forward(self, x):
         identity = x
 
         out = self.conv1(x)
+        out = self.scaler(out)
         out = self.bn1(out)
         out = self.relu(out)
 
         out = self.conv2(out)
+        out = self.scaler(out)
         out = self.bn2(out)
         out = self.relu(out)
 
         out = self.conv3(out)
+        out = self.scaler(out)
         out = self.bn3(out)
 
         if self.downsample is not None:
@@ -118,7 +126,8 @@ class Bottleneck(nn.Module):
 class ResNet(BaseModel):
     def __init__(self, dict_module: dict = None, block=BasicBlock, layers=(2, 2, 2, 2), num_classes=1000,
                  zero_init_residual=False, groups=1, width_per_group=64, replace_stride_with_dilation=None,
-                 norm_layer=None):
+                 norm_layer=None, bern=False, model_rate=1, layer_planes=None):
+        self.output_layer_prefix = "fc."
         new_arch = dict_module is None
         if new_arch:
             dict_module = dict()
@@ -126,7 +135,11 @@ class ResNet(BaseModel):
                 norm_layer = nn.BatchNorm2d
             self._norm_layer = norm_layer
 
-            self.inplanes = 64
+            if layer_planes is None:
+                base_planes = [64, 128, 256, 512]
+                scale = model_rate ** 0.5
+                layer_planes = [max(1, int(int(math.ceil(scale * p)) / 4) * 4) for p in base_planes]
+            self.inplanes = layer_planes[0]
             self.dilation = 1
             if replace_stride_with_dilation is None:
                 # each element in the tuple indicates if we should replace
@@ -138,25 +151,26 @@ class ResNet(BaseModel):
             self.groups = groups
             self.base_width = width_per_group
             dict_module["conv1"] = DenseConv2d(3, self.inplanes, kernel_size=7, stride=2, padding=3,
-                                               use_bias=False)
+                                               use_bias=False, bern=bern)
             dict_module["bn1"] = norm_layer(self.inplanes)
             dict_module["relu"] = nn.ReLU(inplace=True)
             dict_module["maxpool"] = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-            dict_module["layer1"] = self._make_layer(block, 64, layers[0])
-            dict_module["layer2"] = self._make_layer(block, 128, layers[1], stride=2,
-                                                     dilate=replace_stride_with_dilation[0])
-            dict_module["layer3"] = self._make_layer(block, 256, layers[2], stride=2,
-                                                     dilate=replace_stride_with_dilation[1])
-            dict_module["layer4"] = self._make_layer(block, 512, layers[3], stride=2,
-                                                     dilate=replace_stride_with_dilation[2])
+            dict_module["layer1"] = self._make_layer(block, layer_planes[0], layers[0], bern=bern, model_rate=model_rate)
+            dict_module["layer2"] = self._make_layer(block, layer_planes[1], layers[1], stride=2,
+                                                     dilate=replace_stride_with_dilation[0], bern=bern, model_rate=model_rate)
+            dict_module["layer3"] = self._make_layer(block, layer_planes[2], layers[2], stride=2,
+                                                     dilate=replace_stride_with_dilation[1], bern=bern, model_rate=model_rate)
+            dict_module["layer4"] = self._make_layer(block, layer_planes[3], layers[3], stride=2,
+                                                     dilate=replace_stride_with_dilation[2], bern=bern, model_rate=model_rate)
             dict_module["avgpool"] = nn.AdaptiveAvgPool2d((1, 1))
-            dict_module["fc"] = DenseLinear(512 * block.expansion, num_classes)
+            dict_module["fc"] = DenseLinear(layer_planes[3] * block.expansion, num_classes, bern=bern)
 
             self.dict_module = dict_module
 
         super(ResNet, self).__init__(nn.functional.cross_entropy, dict_module)
 
         if new_arch:
+            self.scaler = Scaler(model_rate ** 0.5) if model_rate != 1 else nn.Identity()
             self.reset_parameters(zero_init_residual)
 
     def reset_parameters(self, zero_init_residual):
@@ -177,7 +191,7 @@ class ResNet(BaseModel):
                 elif isinstance(m, BasicBlock):
                     nn.init.constant_(m.bn2.weight, 0)
 
-    def _make_layer(self, block, planes, blocks, stride=1, dilate=False):
+    def _make_layer(self, block, planes, blocks, stride=1, dilate=False, bern=False, model_rate=1):
         norm_layer = self._norm_layer
         downsample = None
         previous_dilation = self.dilation
@@ -192,12 +206,12 @@ class ResNet(BaseModel):
 
         layers = []
         layers.append(block(self.inplanes, planes, stride, downsample, self.groups,
-                            self.base_width, previous_dilation, norm_layer))
+                            self.base_width, previous_dilation, norm_layer, bern=bern, model_rate=model_rate))
         self.inplanes = planes * block.expansion
         for _ in range(1, blocks):
             layers.append(block(self.inplanes, planes, groups=self.groups,
                                 base_width=self.base_width, dilation=self.dilation,
-                                norm_layer=norm_layer))
+                                norm_layer=norm_layer, bern=bern, model_rate=model_rate))
 
         return nn.Sequential(*layers)
 
@@ -215,6 +229,7 @@ class ResNet(BaseModel):
 
         x = self.avgpool(x)
         x = torch.flatten(x, 1)
+        x = self.scaler(x)
         x = self.fc(x)
 
         return x
@@ -253,16 +268,56 @@ class ResNet(BaseModel):
         return self.__class__(new_dict)
 
 
-def _resnet(block, layers, num_classes, **kwargs):
-    model = ResNet(None, block, layers, num_classes=num_classes, **kwargs)
+def _resnet(block, layers, num_classes, bern=False, model_rate=1, layer_planes=None, **kwargs):
+    model = ResNet(
+        None,
+        block,
+        layers,
+        num_classes=num_classes,
+        bern=bern,
+        model_rate=model_rate,
+        layer_planes=layer_planes,
+        **kwargs,
+    )
     return model
 
+def resnet10(num_classes=1000, bern=False, model_rate=1, layer_planes=None, norm_layer=None) -> ResNet:
+    """ResNet-10: [1, 1, 1, 1]"""
+    return _resnet(
+        BasicBlock,
+        [1, 1, 1, 1],
+        num_classes,
+        bern=bern,
+        model_rate=model_rate,
+        layer_planes=layer_planes,
+        norm_layer=norm_layer,
+    )
 
-def resnet18(num_classes=1000) -> ResNet:
+def resnet14(num_classes=1000, bern=False, model_rate=1, layer_planes=None, norm_layer=None) -> ResNet:
+    """ResNet-14: [1, 1, 2, 2]"""
+    return _resnet(
+        BasicBlock,
+        [1, 1, 2, 2],
+        num_classes,
+        bern=bern,
+        model_rate=model_rate,
+        layer_planes=layer_planes,
+        norm_layer=norm_layer,
+    )
+
+def resnet18(num_classes=1000, bern=False, model_rate=1, layer_planes=None, norm_layer=None) -> ResNet:
     r"""ResNet-18 model from
     `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
     """
-    return _resnet(BasicBlock, [2, 2, 2, 2], num_classes)
+    return _resnet(
+        BasicBlock,
+        [2, 2, 2, 2],
+        num_classes,
+        bern=bern,
+        model_rate=model_rate,
+        layer_planes=layer_planes,
+        norm_layer=norm_layer,
+    )
 
 
 def resnet34(num_classes=1000) -> ResNet:

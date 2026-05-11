@@ -1,32 +1,31 @@
-EXP_NAME = "TinyImageNet"
-IMAGE_SIZE = 64
+EXP_NAME = "ImageNet100"
+IMAGE_SIZE = 168
 NUM_FEATURES = 3 * IMAGE_SIZE * IMAGE_SIZE
-NUM_CLASSES = 200
-NUM_TRAIN_DATA = 100000
-NUM_TEST_DATA = 10000
+NUM_CLASSES = 100
+NUM_TRAIN_DATA = 129395
+NUM_TEST_DATA = 5000
 
 acc_sign = 0.03
-
+save_for_split = [0.61]
 
 n1 = 2
 n2 = 2
 n3 = 2
 n4 = 4
-average_download_speed = [20.0,18.0]+[12,10]+[6.0,4.0]+[2.5,2.0,2.0,1.5]
-average_upload_speed = [5.0,4.0]+[3.0,2.5]+[1.5,1.0]+[0.6,0.50,0.50,0.4]
-client_density = [1.0]*n1+[0.6]*n2+[0.3]*n3+[0.1]*n4
+download_speed = 20
+upload_speed = 5
 
 
 holistic_coeff = 10
-list_client_coeff = [1.0]*n1+[client_density[0]/client_density[n1]]*n2+[client_density[0]/client_density[n1+n2]]*n3
-min_density = 0.2
+
+min_density = 0.02
 
 NUM_CLIENTS = 10
-NUM_LOCAL_UPDATES = 20
+NUM_LOCAL_UPDATES = 5
 CLIENT_BATCH_SIZE = 20
-INIT_LR = 0.05
-MOMENTUM = 0
-WEIGHT_DECAY = 0
+INIT_LR = 0.02
+MOMENTUM = 0.9
+WEIGHT_DECAY = 1e-4
 
 EVAL_DISP_INTERVAL = 200
 ADJ_INTERVAL = 50
@@ -63,21 +62,21 @@ MAX_INC_DIFF = None
 MAX_DEC_DIFF = 0.3
 
 LR_HALF_LIFE = 10000
-STEP_SIZE = 1000
+STEP_SIZE = 2000
 ADJ_HALF_LIFE = 10000
-# test_num = 4
-# train_num = 4
 test_num = 1
 train_num = 1
-patience = 4
+patience = 5
 
 asyn_interval = 0.5
-
+MAX_TIME_PMT = 50000
 MAX_ROUND = 20001
+MAX_TIME = 280000
 adaptive_ROUND = 5000
 
 # Iterative pruning config
 NUM_ITERATIVE_PRUNING = 20
-
+PMT_ACC=[0.1,0.2,0.3,0.4,0.5,0.6,0.61,0.62,0.63,0.64,0.65,0.66,0.67,0.68,0.69]
 # Online algorithm config
 MAX_NUM_UPLOAD = 5
+model_size = 43.1007

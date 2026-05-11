@@ -31,8 +31,6 @@ class FLSampler(Sampler):
 
         list_pos = [0] * num_partition
         for rd_idx in range(num_round):
-            if rd_idx % 100 == 0:
-                print(rd_idx)
             if client_selection:
                 selected_client_idx = random.sample(range_partition, client_per_round)
             else:

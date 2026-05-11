@@ -61,6 +61,7 @@ def architecture_search(model, sum_sqg, sum_time, list_coefficient, list_tba_val
         if val > obj_val:
             if max_num is not None:
                 if num_params > max_num:
+                    print("Exceeds max num")
                     break
                 else:
                     num_params += 1
@@ -107,7 +108,7 @@ def architecture_search2(model, sum_sqg, sum_time, list_coefficient, list_tba_va
             pos, val = heap.max_index, heap.max_val
             if max_num is not None:
                 if num_params > max_num:
-                    print("Exceeds max num")
+                    # print("Exceeds max num")
                     break
                 else:
                     num_params += 1
@@ -133,7 +134,7 @@ def main_control(model, squared_grad_dict: dict, config, dec_thr_pct, max_densit
     list_tba_values, list_tba_indices = [], []
     list_coefficient = []
 
-
+    proc_start = timer()
     comp_coeff_iter = iter(config.COMP_COEFFICIENTS)
     comm_coeff = config.COMM_COEFFICIENT
 
@@ -155,10 +156,12 @@ def main_control(model, squared_grad_dict: dict, config, dec_thr_pct, max_densit
             sum_sqg += sqg.sum().item()
             if b_name in squared_grad_dict.keys():
                 sum_sqg += squared_grad_dict[b_name].sum().item()
+    from utils.functional import disp_num_params
 
-
+    # print("\tProcessing layers, time = {}.".format(timer() - proc_start))
+    nas_start = timer()
     architecture_search2(model, sum_sqg, sum_time, list_coefficient, list_tba_values, list_tba_indices, max_density)
-
+    # print("\tNAS time = {}.".format(timer() - nas_start))
 
 
 
@@ -168,25 +171,30 @@ class ControlModule:
         self.config = config
         self.squared_grad_dict = dict()
 
+        self.old_model = None
+        self.g = dict()
+
     @torch.no_grad()
     def accumulate(self, key, sgrad):
         if key in self.squared_grad_dict.keys():
             self.squared_grad_dict[key] += sgrad
         else:
             self.squared_grad_dict[key] = sgrad
-    def accumulate_wg(self, key, old_weight):
-        if key in self.squared_grad_dict.keys():
-            self.squared_grad_dict[key] += (self.model.state_dict()[key]*(self.model.state_dict()[key]-old_weight))**2
-        else:
-            self.squared_grad_dict[key] = (self.model.state_dict()[key]*(self.model.state_dict()[key]-old_weight))**2
-
-    def accumulate_w(self, key):
-        self.squared_grad_dict[key] = torch.abs(self.model.state_dict()[key])+0
 
 
     def adjust(self, dec_thr_pct, max_density=None):
         main_control(self.model, self.squared_grad_dict, self.config, dec_thr_pct, max_density)
         self.squared_grad_dict = dict()
+
+    def accumulate_wg_square(self, old_model=None):
+        if self.old_model is not None:
+            for key in self.model.state_dict().keys():
+                self.g[key] = self.model.state_dict()[key] - old_model[key]
+                self.squared_grad_dict[key] = (self.g[key]*self.model.state_dict()[key])**2
+        else:
+            for key in self.model.state_dict().keys():
+
+                self.squared_grad_dict[key] = self.model.state_dict()[key]
 
 
 

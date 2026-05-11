@@ -98,7 +98,7 @@ class SparseLinear(nn.Module):
 class DenseLinear(nn.Module):
     __constants__ = ['in_features', 'out_features']
 
-    def __init__(self, in_features, out_features, use_bias=True, use_mask=True, **kwargs):
+    def __init__(self, in_features, out_features, use_bias=True, use_mask=True, bern = False, **kwargs):
         super(DenseLinear, self).__init__()
         self.in_features = in_features
         self.out_features = out_features
@@ -111,6 +111,8 @@ class DenseLinear(nn.Module):
         self.reset_parameters(**kwargs)
 
         self.use_mask = use_mask
+        self.bern = bern
+        self.threshold = torch.tensor(0.)
         self.mask = torch.ones_like(self.weight, dtype=torch.bool)
 
     def reset_parameters(self, **kwargs):
@@ -127,6 +129,9 @@ class DenseLinear(nn.Module):
             init.uniform_(self.bias, -bound, bound)
 
     def forward(self, inp: torch.Tensor):
+        if self.bern:
+            from bases.nn.models.fiarse import Bern
+            self.mask = Bern.apply(torch.abs(self.weight), self.threshold)
         masked_weight = self.weight * self.mask if self.use_mask else self.weight
         return nn.functional.linear(inp, masked_weight, self.bias)
 
@@ -134,7 +139,10 @@ class DenseLinear(nn.Module):
         return 'in_features={}, out_features={}, bias={}'.format(
             self.in_features, self.out_features, self.bias is not None
         )
-
+        
+    def set_threshold(self, value):
+        self.threshold = value
+        
     def prune_by_threshold(self, thr):
         self.mask *= (self.weight.abs() >= thr)
 
@@ -144,6 +152,7 @@ class DenseLinear(nn.Module):
         weight_val = self.weight[self.mask == 1.]
         sorted_abs_weight = weight_val.abs().sort()[0]
         thr = sorted_abs_weight[rank]
+        self.set_threshold(thr)
         self.prune_by_threshold(thr)
 
     def prune_by_pct(self, pct):
@@ -167,10 +176,7 @@ class DenseLinear(nn.Module):
         thr = sorted_abs_rand[prune_idx]
         self.mask *= (rand >= thr)
 
-    # def reinitialize(self):
-    #     self.weight = Parameter(self._initial_weight)
-    #     if self._initial_bias is not None:
-    #         self.bias = Parameter(self._initial_bias)
+
 
     def to_sparse(self, transpose=False) -> SparseLinear:
         """
@@ -193,6 +199,118 @@ class DenseLinear(nn.Module):
             self.move_data(device)
 
         return super(DenseLinear, self).to(*args, **kwargs)
+
+    @property
+    def num_weight(self) -> int:
+        return self.mask.sum().item()
+
+class Bias_DenseLinear(nn.Module):
+    __constants__ = ['in_features', 'out_features']
+
+    def __init__(self, in_features, out_features, use_bias=True, use_mask=True, bern = False, **kwargs):
+        super(Bias_DenseLinear, self).__init__()
+        self.in_features = in_features
+        self.out_features = out_features
+        self.weight = Parameter(torch.Tensor(out_features, in_features))
+        if use_bias:
+            self.bias = Parameter(torch.Tensor(out_features))
+        else:
+            self.register_parameter('bias', None)
+
+        self.reset_parameters(**kwargs)
+        self.bern = bern
+        # self.threshold = torch.tensor(0.)
+        self.use_mask = use_mask
+        self.threshold = torch.tensor(0.)
+        self.mask = torch.ones_like(self.weight, dtype=torch.bool)
+        
+
+    def reset_parameters(self, **kwargs):
+        if len(kwargs.keys()) == 0:
+            # default init, see https://pytorch.org/docs/stable/_modules/torch/nn/modules/linear.html#Linear
+            init.kaiming_uniform_(self.weight, a=math.sqrt(5))
+        else:
+            init.kaiming_uniform_(self.weight, **kwargs)
+
+        if self.bias is not None:
+            # default init, see https://pytorch.org/docs/stable/_modules/torch/nn/modules/linear.html#Linear
+            fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
+            bound = 1 / math.sqrt(fan_in)
+            init.uniform_(self.bias, -bound, bound)
+
+    def forward(self, inp: torch.Tensor):
+        if self.bern:
+            from bases.nn.models.fiarse import Bern
+            self.mask = Bern.apply(torch.abs(self.weight), self.threshold)
+        masked_weight = self.weight * self.mask if self.use_mask else self.weight
+        out_mask = (self.mask.abs().sum(dim=1) > 0).float()  # mask shape: [out_features, in_features]
+        masked_bias = self.bias * out_mask if (self.use_mask and self.bias is not None) else self.bias
+        return nn.functional.linear(inp, masked_weight, masked_bias)
+    
+    def set_threshold(self, value):
+        self.threshold = value
+    def extra_repr(self):
+        return 'in_features={}, out_features={}, bias={}'.format(
+            self.in_features, self.out_features, self.bias is not None
+        )
+
+    def prune_by_threshold(self, thr):
+        self.mask *= (self.weight.abs() >= thr)
+
+    def prune_by_rank(self, rank):
+        if rank == 0:
+            return
+        weight_val = self.weight[self.mask == 1.]
+        sorted_abs_weight = weight_val.abs().sort()[0]
+        thr = sorted_abs_weight[rank]
+      
+        self.set_threshold(thr)
+        self.prune_by_threshold(thr)
+
+    def prune_by_pct(self, pct):
+        prune_idx = int(self.num_weight * pct)
+        self.prune_by_rank(prune_idx)
+
+    def retain_by_threshold(self, thr):
+        self.mask *= (self.weight.abs() >= thr)
+
+    def retain_by_rank(self, rank):
+        weights_val = self.weight[self.mask == 1.]
+        sorted_abs_weights = weights_val.abs().sort(descending=True)[0]
+        thr = sorted_abs_weights[rank]
+        self.retain_by_threshold(thr)
+
+    def random_prune_by_pct(self, pct):
+        prune_idx = int(self.num_weight * pct)
+        rand = torch.rand(size=self.mask.size(), device=self.mask.device)
+        rand_val = rand[self.mask == 1]
+        sorted_abs_rand = rand_val.sort()[0]
+        thr = sorted_abs_rand[prune_idx]
+        self.mask *= (rand >= thr)
+
+
+
+    def to_sparse(self, transpose=False) -> SparseLinear:
+        """
+        by chance, some entries with mask = 1 can have a 0 value. Thus, the to_sparse methods give a different size
+        there's no efficient way to solve it yet
+        """
+        sparse_bias = None if self.bias is None else self.bias.reshape((-1, 1))
+        sparse_linear = SparseLinear((self.weight * self.mask).to_sparse(), sparse_bias, self.mask)
+        if transpose:
+            sparse_linear.transpose = True
+        return sparse_linear
+
+    def move_data(self, device: torch.device):
+        self.mask = self.mask.to(device)
+
+    def to(self, *args, **kwargs):
+        device = torch._C._nn._parse_to(*args, **kwargs)[0]
+
+        if device is not None:
+            self.move_data(device)
+
+        return super(Bias_DenseLinear, self).to(*args, **kwargs)
 
     @property
     def num_weight(self) -> int:

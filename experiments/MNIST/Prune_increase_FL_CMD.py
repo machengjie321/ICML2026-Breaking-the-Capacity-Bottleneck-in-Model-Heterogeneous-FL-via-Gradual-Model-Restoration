@@ -9,6 +9,7 @@ from bases.vision.sampler import FLSampler
 from control.sub_algorithm import ControlModule
 from configs.mnist import *
 import configs.mnist as config
+from bases.vision.load import get_data_loader
 from utils.functional import dirichlet_split_noniid
 from control.utils import ControlScheduler
 

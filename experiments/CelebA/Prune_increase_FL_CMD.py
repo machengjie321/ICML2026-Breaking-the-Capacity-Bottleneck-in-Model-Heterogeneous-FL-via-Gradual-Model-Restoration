@@ -4,16 +4,16 @@ from bases.fl.simulation_real.Prune_Recover_FL import FedMapServer, FedMapClient
 from bases.optim.optimizer import SGD
 from bases.optim.optimizer_wrapper import OptimizerWrapper
 from bases.vision.load import get_data_loader
-from bases.vision.sampler import FLSampler
+
 from control.sub_algorithm import ControlModule
 
 from bases.nn.models import Conv4
-from bases.vision.sampler import FLSampler
+from bases.vision.sampler_test  import FLSampler, get_FL_sampler
 from configs.celeba import *
 import configs.celeba as config
 
 from utils.save_load import mkdir_save
-
+from utils.functional import select_best_gpu
 
 class INFedMapServer(FedMapServer):
     def get_init_extra_params(self):
@@ -37,10 +37,7 @@ class INFedMapServer(FedMapServer):
         self.control = ControlModule(self.model, config=config)
 
     def init_ip_config(self):
-        self.ip_train_loader = get_data_loader(EXP_NAME, data_type="train", batch_size=CLIENT_BATCH_SIZE,
-                                               shuffle=True, num_workers=config.train_num, user_list=list(range(10)), pin_memory=True)
-        self.ip_test_loader = get_data_loader(EXP_NAME, data_type="test", num_workers=config.test_num, batch_size=100,
-                                              pin_memory=True)
+
         ip_optimizer = SGD(self.model.parameters(), lr=INIT_LR)
         self.ip_optimizer_wrapper = OptimizerWrapper(self.model, ip_optimizer)
         self.ip_control = ControlModule(model=self.model, config=config)
@@ -89,65 +86,124 @@ def get_indices_list():
 class args:
     def __init__(self, parse_args):
         self.seed = 0
-        self.experiment_name = 'PIF_CelebA'
-        self.min_density = parse_args.min_density
-
-
-        self.use_adaptive = True
+        self.lr_scheduler = False
+        self.ex = parse_args.ex
         self.client_selection = False
-        self.initial_pruning = False
-        self.target_density = 0.5
-        self.max_density = 1
-        self.client_density = config.client_density
-        self.density = [x for i, x in enumerate(self.client_density) if x not in self.client_density[:i]]
-        # n:number,u:update,un:update_number
-        self.fair = parse_args.use_fair
-        self.fair_degree = parse_args.fair_degree
-        self.interval = parse_args.interval
+        self.stal = 'poly'
+        self.stal_a = 0.6
+        self.patience = parse_args.patience
+        self.lr_scheduler_step = False
+        self.client_model_norm = False
+        self.mu = parse_args.mu
+        self.need_client_acc = False
 
-        self.device = parse_args.device
-        self.increase = parse_args.increase
+
+        if self.ex.lower().startswith('fed_avg'):
+            self.min_density = 1.0
+            self.merge = 'fed_avg'
+            self.chronous = 'syn'
+            self.recover = True
+            self.Res = False
+            self.patience = parse_args.patience*1.5
+
+        elif self.ex.lower().startswith('fedprox'):
+            self.min_density = 1.0
+            self.merge = 'fed_avg'
+            self.chronous = 'syn'
+            self.recover = True
+            self.Res = False
+            self.client_model_norm = True
+
+        elif self.ex.lower().startswith('fed_asyn'):
+            self.min_density = 1.0
+            self.merge = 'fed_asyn'
+            self.chronous = 'asyn'
+            self.recover = True
+            self.Res = False
+            self.patience = parse_args.patience
+
+        elif self.ex.lower().startswith('heterofl'):
+            self.min_density = 0.02
+            self.merge = 'heterofl'
+            self.chronous = 'syn'
+            self.recover = False
+            self.Res = True
+            self.patience = parse_args.patience
+
+        elif self.ex.lower().startswith('pr_fl'):
+            self.min_density = 0.02
+            self.merge = 'buff_mask_fed_avg'
+            self.chronous = 'asyn'
+            self.recover = True
+            self.Res = True
+            self.need_client_acc = True
+        else:
+            assert False
+
+        self.experiment_name = "CelebA"
+
+        # n:number,u:update,un:update_number
         self.accumulate = parse_args.accumulate
 
-        self.weight_decay = parse_args.weight_decay
+        self.interval = parse_args.interval
+        self.device = select_best_gpu(min_memory=0.5 * 1024)
+        self.increase = parse_args.increase
 
-        self.merge = parse_args.merge
-        self.control_lr = parse_args.control_lr
-        self.wdn = parse_args.wdn
-        self.ft = parse_args.ft
-        self.lr_scheduler = parse_args.lr_scheduler
-        self.uc = parse_args.uc
         self.resume = parse_args.resume
-        self.lr_warm = parse_args.lr_warm
-        self.esc = parse_args.esc
-        self.chronous = parse_args.chronous
-        self.recover = parse_args.recover
-        self.stal = parse_args.stal
-        self.stal_a = parse_args.stal_a
-        assert self.stal.lower().startswith('con') or self.stal.lower().startswith('poly') or self.stal.lower().startswith('hinge')
+        self.number_clients = parse_args.num_clients
+        self.sample_client = parse_args.sample_client
+        self.sample_data_degree = parse_args.sample_data_degree
+        cd = [1.0, 0.5, 0.2, 0.1, 0.05]
+        self.part = [0.1, 0.1, 0.2, 0.3, 0.3]
+
+        if self.sample_client == 'medium':
+            part = [0.1, 0.1, 0.2, 0.3, 0.3]
+        elif self.sample_client == 'high':
+            part = [0.1, 0.1, 0.1, 0.1, 0.6]
+        elif self.sample_client == 'low':
+            part = [0.2, 0.2, 0.2, 0.2, 0.2]
+        else:
+            assert False
+        self.client_density = int(part[0] * self.number_clients) * [1.0] + int(part[1] * self.number_clients) * [
+            0.5] + int(part[2] * self.number_clients) * [0.2] + int(part[3] * self.number_clients) * [0.1]
+        self.client_density = self.client_density + (self.number_clients - len(self.client_density)) * [0.05]
+        import numpy as np
+        np.random.lognormal(mean=0, sigma=0.1)
+        self.average_download_speed = [download_speed * i for i in self.client_density]
+        self.average_upload_speed = [upload_speed * i for i in self.client_density]
+        self.server_up_speed = parse_args.server_up_speed
+
+        assert self.stal.lower().startswith('con') or self.stal.lower().startswith(
+            'poly') or self.stal.lower().startswith('hinge')
         assert self.stal_a <= 1
 
-        self.experiment_name = self.experiment_name + '_' + str(self.density)+str(self.min_density)+'_'+('' if self.chronous == 'syn' else '_'+self.chronous+'_') +str('_recover' if self.recover else '')\
-            +'_'+str(self.stal.lower())+ '_' + self.merge +'_'+ str('' if config.min_density == 0.1 else config.min_density)+'_'+ str(INIT_LR) + str('' if self.stal_a == 0.6 else self.stal_a)+str('' if self.fair == 'un_fair' else '_'+self.fair) + '_' + str(
-            '' if self.fair_degree == 0 else self.fair_degree) + '_' + str(
-            self.interval) + '_' + str('' if self.increase == 0.2 else self.increase) + '_' + str('' if self.weight_decay == 0 else
-            self.weight_decay) + '_' + str('' if self.accumulate=='g' else self.accumulate ) + str('_clr' if self.control_lr else '') + '_' + str('' if
-            self.wdn == 10 else self.wdn) + str('_ft' if self.ft == 'n' else '') + str('_lr_scheduler' if self.lr_scheduler else '') +  str(
-            '_lr_warm' if self.lr_warm else '') + str('_uc' if self.uc == 'n' else '')+ str('_esc' if self.esc else '')
+        self.sample = 'niid' if parse_args.sample else 'iid'
+
+        self.density = [x for i, x in enumerate(self.client_density) if x not in self.client_density[:i]]
 
 
+        self.experiment_name = (('' if self.server_up_speed == 10 else 'su_' + str(
+            self.server_up_speed) + '_') + self.sample + '_' + (self.sample_client + '_') + (
+                                    '' if self.sample_data_degree == 0.6 else '_' + str(self.sample_data_degree)) + (
+                                            '_' + str(
+                                        self.number_clients)) + '_' + self.ex + '_' + self.experiment_name + '_' + str(
+            self.patience) + '_' + str(self.density) + \
+                                '_' + str('' if self.accumulate == 'wg' else '_' + self.accumulate) + '_' + str(
+                    self.interval))
 
 if __name__ == "__main__":
-    if os.getcwd().startswith('/mnt/sda1/mcj/PruneFL-master/PruneFL-master'):
-        os.chdir('/mnt/sda1/mcj/PruneFL-master/PruneFL-master')
-
-    if os.getcwd().startswith("/data/mcj/Prune_fl"):
-        os.chdir("/data/mcj/Prune_fl")
-
-
     args = args(parse_args())
+    seed, resume, use_adaptive = 0, False, True
     device = torch.device("cuda:"+str(args.device) if torch.cuda.is_available() else "cpu")
+
+    seed, resume, use_adaptive = 0, False, True
     torch.manual_seed(args.seed)
+    torch.cuda.manual_seed(args.seed)
+    torch.cuda.manual_seed_all(args.seed)
+    import numpy as np
+    np.random.seed(args.seed)
+    import random
+    random.seed(args.seed)
 
     num_user_path = os.path.join("datasets", "CelebA", "processed", "num_users.pt")
     if not os.path.isfile(num_user_path):
@@ -155,22 +211,29 @@ if __name__ == "__main__":
                         pin_memory=True)
     num_users = torch.load(num_user_path)
 
-    server = INFedMapServer(config, args, Conv4(), args.seed, SGD, {"lr": config.INIT_LR}, args.use_adaptive, device)
+    server = INFedMapServer(config, args, Conv4(), args.seed, SGD, {"lr": config.INIT_LR}, use_adaptive, device)
     list_models, list_users = server.init_clients()
     list_train_loader = []
-    for i in range(len(list_users)):
-        sampler = FLSampler(get_indices_list(), i, MAX_ROUND, NUM_LOCAL_UPDATES * CLIENT_BATCH_SIZE, args.client_selection,
+    ds = get_data_loader(EXP_NAME, data_type="train", batch_size=CLIENT_BATCH_SIZE, shuffle=False,
+                    num_workers=config.train_num, pin_memory=True).dataset
+
+    sp = get_FL_sampler(get_indices_list(), MAX_ROUND, NUM_LOCAL_UPDATES * CLIENT_BATCH_SIZE, args.client_selection,
                         NUM_CLIENTS)
-        train_loader = get_data_loader(EXP_NAME, data_type="train", batch_size=CLIENT_BATCH_SIZE, shuffle=False,
-                                       sampler=sampler, num_workers=config.train_num, pin_memory=True)
+    from bases.vision.data_loader import DataLoader
+    for i in range(len(sp)):
+        sampler = FLSampler(sp[i])
+
+        train_loader = DataLoader(ds, batch_size=CLIENT_BATCH_SIZE, shuffle=False, sampler=sampler, num_workers=config.train_num,
+                      pin_memory=True)
         list_train_loader.append(train_loader)
+        print("get client dataloader" + str(i))
 
 
     print("Sampler initialized")
 
 
 
-    client_list = [INFedMapClient(list_models[idx], config, args.use_adaptive, server.list_extra_params[idx], exp_config = server.exp_config, args=args, device = device) for idx in range(NUM_CLIENTS)]
+    client_list = [INFedMapClient(list_models[idx], config, use_adaptive, server.list_extra_params[idx], exp_config = server.exp_config, args=args, device = device) for idx in range(NUM_CLIENTS)]
 
     i = 0
     for client in client_list:
@@ -178,15 +241,6 @@ if __name__ == "__main__":
         client.init_train_loader(list_train_loader[i])
         client.init_test_loader(server.test_loader)
         i = i+1
-    if args.weight_decay >= 0:
-        for client in client_list[-args.wdn:]:
-            for param_group in client.optimizer_wrapper.optimizer.param_groups:
-                param_group['weight_decay'] = args.weight_decay
-
-            for param_group in client.optimizer.param_groups:
-                print("Learning Rate:", param_group['lr'])
-                print("Weight Decay:", param_group['weight_decay'])
-
 
 
     fl_runner = FedMapFL(args, config, server, client_list)

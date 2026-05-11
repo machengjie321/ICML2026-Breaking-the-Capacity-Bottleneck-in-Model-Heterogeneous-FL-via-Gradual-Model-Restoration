@@ -1,6 +1,6 @@
 import torch
 from bases.nn.linear import DenseLinear
-
+from bases.nn.linear import Bias_DenseLinear
 
 class SparseSequential(torch.nn.Sequential):
     def forward(self, inp: torch.Tensor):
@@ -13,5 +13,5 @@ class SparseSequential(torch.nn.Sequential):
 
 class DenseSequential(torch.nn.Sequential):
     def to_sparse(self):
-        sparse_layers = [layer.to_sparse() if isinstance(layer, DenseLinear) else layer for layer in self]
+        sparse_layers = [layer.to_sparse() if isinstance(layer, DenseLinear) or isinstance(layer, Bias_DenseLinear) else layer for layer in self]
         return SparseSequential(*sparse_layers)

@@ -1,5 +1,7 @@
+
+
 EXP_NAME = "FEMNIST"
-L1_GAP = [0.1, 0.1, 0.1, 0.08, 0.05, 0.025, 0.025, 0.01, 0.005]
+
 IMG_DIM = (28, 28)
 NUM_FEATURES = 28 * 28
 NUM_CLASSES = 62
@@ -9,17 +11,11 @@ NUM_USERS = 193
 
 acc_sign = 0.03
 
-n1 = 2
-n2 = 2
-n3 = 2
-n4 = 4
-average_download_speed = [20.0,18.0]+[12,10]+[6.0,4.0]+[2.5,2.0,2.0,1.5]
-average_upload_speed = [5.0,4.0]+[3.0,2.5]+[1.5,1.0]+[0.6,0.50,0.50,0.4]
-client_density = [1.0]*n1+[0.6]*n2+[0.3]*n3+[0.1]*n4
 
-holistic_coeff = 10
-list_client_coeff = [1.0]*n1+[client_density[0]/client_density[n1]]*n2+[client_density[0]/client_density[n1+n2]]*n3
-min_density = 0.05
+download_speed = 20
+upload_speed = 5
+
+min_density = 0.02
 
 
 NUM_CLIENTS = 10     # Set the number of client
@@ -27,15 +23,15 @@ NUM_LOCAL_UPDATES = 5
 CLIENT_BATCH_SIZE = 20
 INIT_LR = 0.25
 
-ADJ_INTERVAL = 50
-EVAL_DISP_INTERVAL = 50
+ADJ_INTERVAL = 10
+EVAL_DISP_INTERVAL = 25
 
-IP_MAX_ROUNDS = 1000
+IP_MAX_ROUNDS = 100
 IP_ADJ_INTERVAL = ADJ_INTERVAL
 IP_DATA_BATCH = 10
 IP_THR = 0.1
 
-
+save_for_split = [0.83]
 
 
 # Conv2
@@ -58,18 +54,27 @@ ADJ_THR_FACTOR = 1.5
 ADJ_THR_ACC = ADJ_THR_FACTOR / NUM_CLASSES
 ADJ_HALF_LIFE = 7000
 
-MAX_ROUND = 10001
+
 
 MAX_ROUND_CONVENTIONAL_FL=1000
 MAX_ROUND_ADAPTIVE=10000
-test_num = 0
-train_num = 0
+test_num = 2
+train_num = 2
 # test_num = 0
 # train_num = 0
-patience = 10
+patience = 20
 asyn_interval = 0.5
 # Iterative pruning config
 NUM_ITERATIVE_PRUNING = 20
 
 # Online algorithm config
 MAX_NUM_UPLOAD = 5
+model_size = 25.9811
+#
+MAX_TIME_PMT = 15000
+PMT_ACC=[0.2,0.4,0.6,0.70,0.75,0.80, 0.82,0.83, 0.835, 0.84,0.843,0.846,0.848,0.85,0.855]
+MAX_ROUND = 10001
+# MAX_TIME = 210000
+MAX_TIME = 150000
+# MAX_ROUND = 1000
+# MAX_TIME = 20000

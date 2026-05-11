@@ -1,0 +1,6 @@
+nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 5 -ex fed_avg  -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
+nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 5 -ex fed_avg  -num_clients 10 -sample_client medium -patience 5  > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
+nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 5 -ex fed_avg  -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
+nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 5 -ex fed_avg  -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
+nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 5 -ex fed_avg  -num_clients 10 -sample_client low -patience 5  > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
+nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 5 -ex fed_avg  -num_clients 10 -sample_client high -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&

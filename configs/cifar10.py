@@ -9,22 +9,16 @@ NUM_CLIENTS = 10
 NUM_LOCAL_UPDATES = 5
 CLIENT_BATCH_SIZE = 20
 INIT_LR = 0.25
-
+save_for_split = [0.84]
 acc_sign = 0.03
 
-EVAL_DISP_INTERVAL = 20
-n1 = 2
-n2 = 2
-n3 = 2
-n4 = 4
-average_download_speed = [20.0,18.0]+[12,10]+[6.0,4.0]+[2.5,2.0,2.0,1.5]
-average_upload_speed = [5.0,4.0]+[3.0,2.5]+[1.5,1.0]+[0.6,0.50,0.50,0.4]
-client_density = [1.0]*n1+[0.6]*n2+[0.3]*n3+[0.1]*n4
+EVAL_DISP_INTERVAL = 100
 
-holistic_coeff = 10
-list_client_coeff = [1.0]*n1+[client_density[0]/client_density[n1]]*n2+[client_density[0]/client_density[n1+n2]]*n3
+download_speed = 20
+upload_speed = 5
+
+
 min_density = 0.05
-
 
 # VGG-11
 DENSE_TIME = 31.514276721399803
@@ -38,12 +32,12 @@ COMP_COEFFICIENTS = [c * NUM_LOCAL_UPDATES for c in COEFFICIENTS_SINGLE]
 COMM_COEFFICIENT = 5.561621025626998e-06  # 5.18405073e-6
 TIME_CONSTANT = SPARSE_TIME * NUM_LOCAL_UPDATES
 
-MAX_ROUND = 10001
+
 adaptive_ROUND = 5000
-test_num = 4
-train_num = 4
+test_num = 1
+train_num = 1
 patience = 10
-asyn_interval = 1
+asyn_interval = 0.5
 # Adaptive pruning config
 ADJ_INTERVAL = 50
 model_size = 37.203980445861816
@@ -60,7 +54,7 @@ ADJ_THR_ACC = ADJ_THR_FACTOR / NUM_CLASSES
 MAX_INC_DIFF = None
 MAX_DEC_DIFF = 0.3
 
-LR_HALF_LIFE = 5500
+LR_HALF_LIFE = 10000
 ADJ_HALF_LIFE = 5500
 
 # Iterative pruning config
@@ -68,3 +62,8 @@ NUM_ITERATIVE_PRUNING = 20
 
 # Online algorithm config
 MAX_NUM_UPLOAD = 5
+PMT_ACC=[0.2,0.4,0.6,0.70,0.80,0.82,0.84,0.85,0.86,0.863,0.866,0.868,0.87,0.871,0.872,0.873,0.874]
+MAX_TIME_PMT = 15000
+MAX_ROUND = 20001
+MAX_TIME = 305000
+

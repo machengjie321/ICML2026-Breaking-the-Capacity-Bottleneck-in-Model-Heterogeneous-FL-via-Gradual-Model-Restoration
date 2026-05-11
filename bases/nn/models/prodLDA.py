@@ -23,6 +23,7 @@ class ProdLDA(BaseModel):
         self.use_lognormal =use_lognormal
         if dict_module is None:
             dict_module = dict()
+
             Encoder = DenseSequential(DenseLinear(vocab_size,hidden_size),
                                      nn.Softplus(),
                                      DenseLinear(hidden_size,hidden_size),
@@ -44,6 +45,11 @@ class ProdLDA(BaseModel):
 
                                                 )
 
+
+
+
+
+
             Decoder = DenseSequential(nn.Dropout(dropout),
                                       DenseLinear(num_topics,vocab_size),
                                       nn.BatchNorm1d(vocab_size))
@@ -57,6 +63,8 @@ class ProdLDA(BaseModel):
                 dict_module["HiddenToLogNormal_1"] = HiddenToLogNormal_1
                 dict_module["Decoder"] = Decoder
 
+
+
         super(ProdLDA, self).__init__(binary_cross_entropy_with_logits, dict_module)
 
     def collect_layers(self):
@@ -65,6 +73,7 @@ class ProdLDA(BaseModel):
         self.prunable_layer_prefixes = self.param_layer_prefixes
 
     def forward(self, inputs):
+
         outputs = self.Encoder(inputs)
         if self.use_lognormal:
             mu = self.HiddenToLogNormal_1(outputs)
@@ -121,11 +130,13 @@ class ProdLDA(BaseModel):
 
     def _train(self,data_source, model,optimizer,device):
         self.train()
+
         nll, kld = self.get_loss(data_source, model, device)
         optimizer.zero_grad()
         loss = nll + kld
         loss.backward()
         optimizer.step()
+
         return(nll, kld, loss)
 
     def get_savepath(self,args):

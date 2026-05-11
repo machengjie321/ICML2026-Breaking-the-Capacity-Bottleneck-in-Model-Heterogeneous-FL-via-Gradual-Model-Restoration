@@ -7,27 +7,33 @@ from bases.nn.linear import DenseLinear
 from bases.nn.models.base_model import BaseModel
 from bases.nn.sequential import DenseSequential
 from .utils import is_conv, is_fc
+import numpy as np
 
 __all__ = ["Conv2", "Conv4"]
 
 
 class Conv2(BaseModel):
-    def __init__(self, dict_module: dict = None):
+    def __init__(self, dict_module: dict = None, bern = False, model_rate = 1, hidden_sizes=None):
         if dict_module is None:
             dict_module = dict()
-            features = nn.Sequential(DenseConv2d(1, 32, kernel_size=5, padding=2),  # 32x28x28
+            if hidden_sizes is None:
+                hidden_sizes = [32, 64, 2048]
+                hidden_sizes = [int(np.ceil(model_rate ** 0.5 * x)) for x in hidden_sizes]
+
+            features = nn.Sequential(DenseConv2d(1, hidden_sizes[0], kernel_size=5, padding=2, bern=bern),
                                      nn.ReLU(inplace=True),
                                      nn.MaxPool2d(2, stride=2),  # 32x14x14
-                                     DenseConv2d(32, 64, kernel_size=5, padding=2),  # 64x14x14
+                                     DenseConv2d(hidden_sizes[0], hidden_sizes[1], kernel_size=5, padding=2, bern=bern),
                                      nn.ReLU(inplace=True),
                                      nn.MaxPool2d(2, stride=2))  # 64x7x7
 
-            classifier = DenseSequential(DenseLinear(64 * 7 * 7, 2048, mode="fan_out"),
+            classifier = DenseSequential(DenseLinear(hidden_sizes[1] * 7 * 7, hidden_sizes[2], mode="fan_out", bern=bern),
                                          nn.ReLU(inplace=True),
-                                         DenseLinear(2048, 62, mode="fan_out"))
+                                         DenseLinear(hidden_sizes[2], 62, mode="fan_out", bern=bern))
 
             dict_module["features"] = features
             dict_module["classifier"] = classifier
+            self.output_layer_prefix = "classifier.2."
 
         super(Conv2, self).__init__(binary_cross_entropy_with_logits, dict_module)
 
@@ -121,6 +127,7 @@ class Conv2(BaseModel):
                     next_layer.in_channels = len_merged_indices
                 elif is_fc(next_layer):
                     next_layer.in_features = len_merged_indices
+
 
 
 

@@ -1,5 +1,6 @@
 from torch import nn as nn
 from torch.nn.functional import binary_cross_entropy_with_logits
+import math
 
 from bases.nn.conv2d import DenseConv2d
 from bases.nn.linear import DenseLinear
@@ -10,18 +11,33 @@ __all__ = ["VGG11"]
 
 
 class VGG11(BaseModel):
-    def __init__(self, dict_module: dict = None):
+    def __init__(self, dict_module: dict = None, bern = False, model_rate=1, feature_channels=None,
+                 classifier_channels=None):
+        self.output_layer_prefix = "classifier.4."
         if dict_module is None:
             dict_module = dict()
             self.batch_norm = False
-            self.config = [64, 'M', 128, 'M', 256, 256, 'M', 512, 512, 'M', 512, 512, 'M']
+            if feature_channels is None:
+                base_feature_channels = [64, 128, 256, 256, 512, 512, 512, 512]
+                scale = model_rate ** 0.5
+                feature_channels = [max(1, int(math.ceil(scale * c))) for c in base_feature_channels]
+            if classifier_channels is None:
+                classifier_channels = [feature_channels[-1], feature_channels[-1]]
+
+            self.config = [
+                feature_channels[0], 'M',
+                feature_channels[1], 'M',
+                feature_channels[2], feature_channels[3], 'M',
+                feature_channels[4], feature_channels[5], 'M',
+                feature_channels[6], feature_channels[7], 'M'
+            ]
 
             features = self._make_feature_layers()
-            classifier = DenseSequential(DenseLinear(512, 512, a=0),
+            classifier = DenseSequential(DenseLinear(feature_channels[-1], classifier_channels[0], a=0, bern=bern),
                                          nn.ReLU(inplace=True),
-                                         DenseLinear(512, 512, a=0),
+                                         DenseLinear(classifier_channels[0], classifier_channels[1], a=0, bern=bern),
                                          nn.ReLU(inplace=True),
-                                         DenseLinear(512, 10, a=1.5, mode="fan_out"))
+                                         DenseLinear(classifier_channels[1], 10, a=1.5, mode="fan_out", bern=bern))
 
             dict_module["features"] = features
             dict_module["classifier"] = classifier

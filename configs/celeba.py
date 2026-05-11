@@ -7,6 +7,9 @@ NUM_TRAIN_DATA = 177457
 NUM_TEST_DATA = 22831
 NUM_USERS = 9343
 
+download_speed = 20
+upload_speed = 5
+
 NUM_CLIENTS = 10
 NUM_LOCAL_UPDATES = 5
 CLIENT_BATCH_SIZE = 20
@@ -36,15 +39,13 @@ n3 = 4
 # client_density = [1.0]*n1+[0.7]*n2+[0.5]*n3
 # list_client_coeff = [1.0]*n1+[client_density[0]/client_density[n1]]*n2+[client_density[0]/client_density[n1+n2]]*n3
 
-average_download_speed = [20.0]*n1+[18]*n2+[16]*n3
-average_upload_speed = [5.0]*n1+[4.5]*n2+[4]*n3
-client_density = [1.0]*n1+[0.9]*n2+[0.8]*n3
+
 
 # average_download_speed = [20.0]*n1+[10]*n2+[10]*n3
 # average_upload_speed = [5.0]*n1+[2.5]*n2+[2.5]*n3
 # client_density = [0.8]*n1+[0.4]*n2+[0.4]*n3
 
-min_density = 0.2
+min_density = 0.01
 
 # Conv4
 DENSE_TIME = 3.724286518478766
@@ -93,6 +94,8 @@ ADJ_HALF_LIFE = 1000
 
 # Iterative pruning config
 NUM_ITERATIVE_PRUNING = 20
-
+PMT_ACC=[0.5,0.6,0.7,0.8,0.9,0.91,0.92,0.93]
 # Online algorithm config
-MAX_NUM_UPLOAD = 5
+save_for_split = [0.9]
+MAX_TIME_PMT = 2000
+MAX_TIME = 20000

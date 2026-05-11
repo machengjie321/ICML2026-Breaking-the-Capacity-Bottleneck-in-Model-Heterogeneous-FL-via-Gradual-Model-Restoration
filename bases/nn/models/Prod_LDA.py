@@ -19,7 +19,7 @@ from torch.utils.data import DataLoader
 
 class ProdLDA(BaseModel):
     def __init__(self, dict_module: dict = None,vocab_size = None, hidden_size = None, num_topics = None,
-                 dropout = None, use_lognormal=False,device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),train_data=None):
+                 dropout = None, use_lognormal=False,device=torch.device("cuda:1" if torch.cuda.is_available() else "cpu"),train_data=None):
         learn_priors = True
         topic_prior_mean = 0.0
         topic_prior_variance = None
@@ -38,19 +38,22 @@ class ProdLDA(BaseModel):
         self.train_data = train_data
         if dict_module is None:
             dict_module = dict()
-            input_layer = DenseSequential(DenseLinear(vocab_size,hidden_size),
+            input_layer = DenseSequential(DenseLinear(vocab_size,hidden_size[0]),
                                             nn.Softplus())
 
 
-            hiddens = DenseLinear(hidden_size,hidden_size)
+
+            hiddens = DenseSequential(OrderedDict([
+                ('l_{}'.format(i), DenseSequential(DenseLinear(h_in, h_out), nn.Softplus()))
+                for i, (h_in, h_out) in enumerate(zip(hidden_size[:-1], hidden_size[1:]))]))
 
             f_drop = nn.Dropout(p=self.dropout)
-            f_mu = DenseSequential(DenseLinear(hidden_size,num_topics),
+            f_mu = DenseSequential(DenseLinear(hidden_size[-1],num_topics),
                                                 nn.BatchNorm1d(num_topics,affine=False)
                                                 )
 
 
-            f_sigma = DenseSequential(DenseLinear(hidden_size,num_topics),
+            f_sigma = DenseSequential(DenseLinear(hidden_size[-1],num_topics),
                                                 nn.BatchNorm1d(num_topics,affine=False)
                                                 )
 
@@ -61,6 +64,10 @@ class ProdLDA(BaseModel):
 
             # dropout on theta
             drop_theta = nn.Dropout(p=self.dropout)
+
+
+
+
             dict_module["input_layer"] = input_layer
             dict_module["hiddens"] = hiddens
 
@@ -70,12 +77,14 @@ class ProdLDA(BaseModel):
             dict_module['beta_batchnorm'] = beta_batchnorm
             dict_module['drop_theta'] = drop_theta
 
+
         super(ProdLDA, self).__init__(binary_cross_entropy_with_logits, dict_module)
         self.beta = torch.Tensor(num_topics, vocab_size)
         if torch.cuda.is_available():
             self.beta = self.beta.to(device)
 
         self.beta = nn.Parameter(self.beta)
+
         nn.init.xavier_uniform_(self.beta)
         self.prior_mean = torch.tensor(
             [topic_prior_mean] * num_topics)
@@ -83,6 +92,7 @@ class ProdLDA(BaseModel):
             self.prior_mean = self.prior_mean.to(device)
         if self.learn_priors:
             self.prior_mean = nn.Parameter(self.prior_mean)
+
         if topic_prior_variance is None:
             topic_prior_variance = 1. - (1. / self.n_components)
         self.prior_variance = torch.tensor(
@@ -131,39 +141,10 @@ class ProdLDA(BaseModel):
         self.final_topic_document = topic_doc
 
 
+
+
         return self.prior_mean, self.prior_variance, \
             posterior_mu, posterior_sigma, posterior_log_sigma, word_dist, topic_word,topic_doc
-
-    def fit(self, train_dataset, validation_dataset):
-        """
-        Train the AVITM model.
-
-        Args
-            train_dataset : PyTorch Dataset classs for training data.
-            val_dataset : PyTorch Dataset classs for validation data.
-            save_dir : directory to save checkpoint models to.
-        """
-
-        self.train_data = train_dataset
-        self.validation_data = validation_dataset
-        train_loader = DataLoader(
-            self.train_data, batch_size=self.batch_size, shuffle=True,
-            num_workers=self.num_data_loader_workers)
-
-        # init training variables
-        train_loss = 0
-        samples_processed = 0
-
-        # train loop
-        for epoch in range(self.num_epochs):
-
-            sp, train_loss, topic_words, topic_document = self._train_epoch(train_loader)
-            samples_processed += sp
-            self.best_components = self.model.beta
-            self.final_topic_word = topic_words
-            self.final_topic_document = topic_document
-            self.best_loss_train = train_loss
-
 
     def get_theta(self, x):
         with torch.no_grad():
@@ -175,8 +156,7 @@ class ProdLDA(BaseModel):
                 self.reparameterize(posterior_mu, posterior_log_sigma), dim=1)
 
             return theta
-    def set_train_data(self, train_data):
-        self.train_data = train_data
+
     def _evaluate(self, model,  loader):
 
         """Train epoch."""
@@ -186,6 +166,7 @@ class ProdLDA(BaseModel):
         for batch_samples in loader:
             # batch_size x vocab_size
             x = batch_samples['X']
+
 
             x = x.to(self.device)
             # forward pass
@@ -206,7 +187,7 @@ class ProdLDA(BaseModel):
 
     def _train(self, x, model, optimizer, device):
         model.train()
-        x = x['X']
+
         x = x.to(device)
         train_loss = 0
         samples_processed = 0
@@ -257,7 +238,7 @@ class ProdLDA(BaseModel):
 
         return loss.sum()
 
-    def predict(self, dataset, model):
+    def predict(self, dataset,model):
         """Predict input."""
         model.eval()
 
@@ -269,7 +250,7 @@ class ProdLDA(BaseModel):
             for batch_samples in loader:
                 # batch_size x vocab_size
                 x = batch_samples['X']
-                x = x.reshape(x.shape[0], -1).float()
+                x = x.reshape(x.shape[0], -1)
 
                 x = x.to(self.device)
                 # forward pass
@@ -298,6 +279,7 @@ class ProdLDA(BaseModel):
     def get_topics(self, k=10):
         """
         Retrieve topic words.
+
         Args
             k : (int) number of words to return per topic, default 10.
         """
