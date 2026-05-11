@@ -125,6 +125,74 @@ The first run of a dataset may trigger an automatic download or preprocessing st
 - `StackOverflow`: if TensorFlow Federated is installed, the project can build `stackoverflow_train.pt`, `stackoverflow_val.pt`, and `stackoverflow_vocab.pt` automatically on first use.
 - `ImageNet100`: automatic download is not provided. After you manually place the raw `ILSVRC` files under `datasets/ImageNet100/ILSVRC`, rerunning the same command will automatically convert them into LMDB.
 
+### Expected dataset directory structure
+
+The repository expects a `datasets/` directory at the project root. In our public release, this is typically a symlink to shared storage, but the logical structure should look like:
+
+```text
+datasets/
+├── CIFAR10/
+├── FEMNIST/
+│   ├── raw/
+│   └── processed/
+├── ImageNet100/
+│   ├── ILSVRC/                  # manually placed raw files
+│   ├── imagenet100_train.lmdb/  # generated automatically
+│   └── imagenet100_val.lmdb/    # generated automatically
+└── stackoverflow/
+    ├── stackoverflow_train.pt
+    ├── stackoverflow_val.pt
+    └── stackoverflow_vocab.pt
+```
+
+Practical behavior by dataset:
+
+- `CIFAR10`
+  - Can be downloaded automatically.
+  - No extra manual raw-data step is needed in normal use.
+- `FEMNIST`
+  - Can be downloaded and preprocessed automatically through LEAF.
+  - If the raw files already exist, rerunning will convert them into `processed/`.
+- `ImageNet100`
+  - Raw files must be placed manually under `datasets/ImageNet100/ILSVRC`.
+  - The LMDB files are generated automatically on rerun.
+- `StackOverflow`
+  - Automatic preprocessing is supported if TensorFlow Federated is installed.
+  - The generated `.pt` and vocabulary files are then reused by training scripts.
+
+This means the general rule is:
+
+- if automatic download is supported, the first run can prepare the dataset directly;
+- if automatic download is not supported, place the raw files once and rerun the same command;
+- if an intermediate format such as `processed/` or `lmdb/` is missing, the code will build it on first use.
+
+## Experiment Entry Points
+
+The repository contains many scripts, but they are not all meant for the same purpose. The recommended split is:
+
+- **Main comparison experiments**
+  - `experiments/CIFAR10/Prune_increase_FL_CMD.py`
+  - `experiments/FEMNIST/Prune_increase_FL_CMD.py`
+  - `experiments/ImageNet100/Prune_increase_FL_CMD.py`
+  - `experiments/stackoverflow/Prune_increase_FL_CMD.py`
+- **Ablation experiments**
+  - `experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py`
+  - `experiments/FEMNIST/Ablation_Prune_increase_FL_CMD.py`
+  - `experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py`
+  - `experiments/stackoverflow/Ablation_Prune_increase_FL_CMD.py`
+  - `experiments/stackoverflow/Ablation_Prune_increase_FL_CMD2.py`
+- **Baseline variants / specialized entrypoints**
+  - `Syn_modelhetero.py`, `fjord.py`, and related method-specific scripts
+  - these are used for baseline reproduction or method-specific comparisons
+- **Notebooks**
+  - the root-level notebooks are mainly for plotting, result organization, and analysis
+  - they are not the primary training entrypoints
+
+If you only want to reproduce the main paper results, start from:
+
+- the dataset-specific `autorun/*.sh` files for command templates, and
+- the corresponding `Prune_increase_FL_CMD.py` entrypoints for actual runs.
+
 ## Example Commands
 
 The commands below are representative examples extracted from the existing `autorun/*.sh` scripts and the notebook-based comparison sweeps.
