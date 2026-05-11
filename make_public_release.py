@@ -77,7 +77,7 @@ AUTORUN_SH_INCLUDE = {
 }
 
 FEDGMR_FILE_INCLUDE = {
-    "GMR.pdf",
+    "Breaking-the-Capacity-Bottleneck-in-Model-Heterogeneous-Federated-Learning-via-Gradual-Model-Restoration.pdf",
     "GMR_framework.png",
     "learning_rate_different_density_models_strip.png",
     "GMR_on_other_MHFL_methods.png",
@@ -183,7 +183,7 @@ This public release includes:
 
 - core training and aggregation code,
 - experiment scripts and configuration files,
-- selected visualization assets under `figure/` and the minimal `FedGMR/` release folder,
+- selected visualization assets under `figure/` and the minimal `FedGMR/` release folder, including the paper PDF,
 - root-level notebooks used for plotting and result analysis,
 - `control/` and `utils/` modules required by experiment entrypoints,
 - `setenv.sh` for environment setup.
@@ -355,9 +355,11 @@ def should_skip(path: Path, src_root: Path) -> bool:
         return True
     if matches_any(rel, EXCLUDE_PATH_PATTERNS):
         return True
-    if path.is_file() and rel.startswith("FedGMR/"):
+    if rel.startswith("FedGMR/"):
         rel_parts = path.relative_to(src_root).parts
-        if len(rel_parts) != 2 or rel_parts[1] not in FEDGMR_FILE_INCLUDE:
+        if path.is_dir() and len(rel_parts) > 1:
+            return True
+        if path.is_file() and (len(rel_parts) != 2 or rel_parts[1] not in FEDGMR_FILE_INCLUDE):
             return True
     return False
 

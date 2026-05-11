@@ -95,7 +95,7 @@ This public release includes:
 
 - core training and aggregation code,
 - experiment scripts and configuration files,
-- selected visualization assets under `figure/` and the minimal `FedGMR/` release folder,
+- selected visualization assets under `figure/` and the minimal `FedGMR/` release folder, including the paper PDF,
 - root-level notebooks used for plotting and result analysis,
 - `control/` and `utils/` modules required by experiment entrypoints,
 - `setenv.sh` for environment setup.
