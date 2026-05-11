@@ -123,7 +123,7 @@ The first run of a dataset may trigger an automatic download or preprocessing st
 - `CIFAR10`: downloaded automatically through `torchvision`.
 - `FEMNIST`: when `download=True`, the project clones LEAF and preprocesses FEMNIST automatically. If the raw data already exists, rerunning will process it into the required format.
 - `StackOverflow`: if TensorFlow Federated is installed, the project can build `stackoverflow_train.pt`, `stackoverflow_val.pt`, and `stackoverflow_vocab.pt` automatically on first use.
-- `ImageNet100`: automatic download is not provided. After you manually place the raw `ILSVRC` files under `datasets/ImageNet100/ILSVRC`, rerunning the same command will automatically convert them into LMDB.
+- `ImageNet100`: automatic download is not provided. Please first download the original ILSVRC data from the official ImageNet/ILSVRC download page (e.g. https://image-net.org/challenges/LSVRC/2012/2012-downloads.php), place the extracted raw files under `datasets/ImageNet100/ILSVRC`, and rerun the same command. The code will then automatically convert the data into LMDB. Our `ImageNet100` setting uses the first **100** WordNet classes listed in `LOC_synset_mapping.txt`.
 
 ### Expected dataset directory structure
 
@@ -155,6 +155,8 @@ Practical behavior by dataset:
   - If the raw files already exist, rerunning will convert them into `processed/`.
 - `ImageNet100`
   - Raw files must be placed manually under `datasets/ImageNet100/ILSVRC`.
+  - The source is the original ILSVRC/ImageNet release.
+  - This project constructs `ImageNet100` by taking the first **100** classes from `LOC_synset_mapping.txt`.
   - The LMDB files are generated automatically on rerun.
 - `StackOverflow`
   - Automatic preprocessing is supported if TensorFlow Federated is installed.
