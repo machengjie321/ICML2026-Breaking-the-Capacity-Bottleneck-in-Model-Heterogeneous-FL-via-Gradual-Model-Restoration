@@ -1,12 +1,12 @@
-numpy
-torch
-torchvision
-tqdm
-Pillow
-matplotlib
-lmdb
-opencv-python-headless
-pynvml
+numpy==1.26.4
+torch==2.5.1+cu124
+torchvision==0.20.1+cu124
+tqdm==4.67.1
+Pillow==12.0.0
+matplotlib==3.10.7
+lmdb==1.7.5
+opencv-python-headless==4.12.0.88
+nvidia-ml-py==13.580.82
 
 # Optional: required only for automatic StackOverflow preprocessing
 # tensorflow
