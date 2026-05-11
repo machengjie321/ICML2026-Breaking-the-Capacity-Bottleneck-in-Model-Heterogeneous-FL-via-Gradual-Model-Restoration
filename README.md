@@ -74,6 +74,8 @@ The ablation results highlight that restoration and aggregation are coupled: GMR
 
 ![Ablation analysis](FedGMR/Ablation_method.png)
 
+In the paper, this figure is complemented by two appendix tables with the full numerical ablations. Those tables cover `w/o Asyn`, `w/o GMR`, `w/o Buff`, `w/o IMS`, and `w/o (Buff, IMS)` across IID/Non-IID splits and different heterogeneity levels, so the figure here should be read as a visual summary rather than the complete ablation record.
+
 ### 6. Robustness to restoration timing
 
 FedGMR does not depend on one exact restoration trigger. A fixed-time restoration variant remains effective across datasets, although adaptive triggering can further improve some settings.
