@@ -61,12 +61,27 @@ TOP_LEVEL_INCLUDE = {
     "setenv.sh",
 }
 
+ROOT_NOTEBOOK_INCLUDE = {
+    "Cifar10-final.ipynb",
+    "Feminst_final.ipynb",
+    "ImageNet100_final.ipynb",
+    "stackoverflow-final.ipynb",
+}
 
-PUBLIC_README = """# FedGMR Public Release
+AUTORUN_SH_INCLUDE = {
+    "cifar10.sh",
+    "extensions.sh",
+    "femnist.sh",
+    "imagenet100.sh",
+    "stackoverflow.sh",
+}
+
+
+PUBLIC_README = """# Breaking the Capacity Bottleneck in Model-Heterogeneous Federated Learning via Gradual Model Restoration
 
 Accepted at ICML 2026.
 
-FedGMR studies a stage-dependent problem in model-heterogeneous federated learning (MHFL): small sub-models help bandwidth-constrained clients participate efficiently in the early stage, but their contribution fades later as model capacity becomes the bottleneck. FedGMR addresses this issue through **Gradual Model Restoration (GMR)**, which progressively restores client model density during training so that bandwidth-constrained clients remain useful contributors in the late stage as well.
+This project studies a stage-dependent problem in model-heterogeneous federated learning (MHFL): small sub-models help bandwidth-constrained clients participate efficiently in the early stage, but their contribution fades later as model capacity becomes the bottleneck. FedGMR addresses this issue through **Gradual Model Restoration (GMR)**, which progressively restores client model density during training so that bandwidth-constrained clients remain useful contributors in the late stage as well.
 
 ## Project Overview
 
@@ -347,7 +362,9 @@ def should_include_top_level(path: Path, src_root: Path) -> bool:
     if not rel_parts:
         return True
     if len(rel_parts) == 1 and path.is_file() and path.suffix == ".ipynb":
-        return True
+        return path.name in ROOT_NOTEBOOK_INCLUDE
+    if len(rel_parts) == 2 and rel_parts[0] == "autorun" and path.is_file() and path.suffix == ".sh":
+        return path.name in AUTORUN_SH_INCLUDE
     return rel_parts[0] in TOP_LEVEL_INCLUDE
 
 
