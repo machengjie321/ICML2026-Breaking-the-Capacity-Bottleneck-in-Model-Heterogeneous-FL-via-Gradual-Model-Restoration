@@ -96,6 +96,8 @@ In heterogeneous federated learning deployments, bandwidth-constrained clients o
 
 FedGMR is built around a simple observation: **small sub-models are useful early, but should not stay fixed forever**. The framework gradually restores client model density during training, so the same resource-constrained clients can train quickly at first and still contribute meaningful updates later.
 
+In the main codebase, the asynchronous behavior is modeled through a virtual-time simulation rather than through a production distributed runtime. Each client is assigned simulated computation/communication time, the server aggregates according to arrivals in this simulated timeline, and the resulting update staleness is part of the experimental setup. This is the sense in which the project studies asynchronous MHFL under heterogeneous client bandwidth and latency.
+
 Around this core mechanism, the project also includes:
 
 - asynchronous coordination for heterogeneous clients,
@@ -111,7 +113,7 @@ Around this core mechanism, the project also includes:
 - **Theory for heterogeneous sub-model training.** The analysis characterizes the bias and variance introduced by incomplete client updates, highlights the role of average density and coverage, and shows that GMR narrows the optimization gap toward full-model FL.
 - **Cross-method generality.** GMR is effective not only in the proposed framework but also when applied on top of other MHFL methods.
 
-## Main Idea and Results
+## Core Idea and Main Results
 
 ### 1. FedGMR framework and core idea
 
