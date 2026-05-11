@@ -1,62 +1,126 @@
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex fed_avg -ac wg -num_clients 10 -sample_client medium -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex fed_asyn -ac wg -num_clients 10 -sample_client medium -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex fed_avg -ac wg -num_clients 10 -sample_client medium -patience 10 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex fed_asyn -ac wg -num_clients 10 -sample_client medium -patience 10 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-nohup python experiments/ImageNet100/Split_model.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 10 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
+#!/usr/bin/env bash
+
+# ImageNet100 command catalog.
+# Commands are intentionally commented out. Remove the leading `#` to run.
 #
-python experiments/ImageNet100/Split_model.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 10
-#
-#nohup python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex gmr -ac wg -num_clients 10 -sample_client medium -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex gmr -ac wg -num_clients 10 -sample_client high -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex gmr -ac wg -num_clients 10 -sample_client low -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex gmr -ac wg -num_clients 10 -sample_client medium -patience 10 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex gmr -ac wg -num_clients 10 -sample_client high -patience 10 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-#nohup python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex gmr -ac wg -num_clients 10 -sample_client low -patience 10 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
+# Method notes:
+# - `pr_fl`: full FedGMR setting used in the main comparison.
+# - `gmr`: GMR-only ablation.
+# - `asyn`: recovery on, but replace asynchronous scheduling with synchronous scheduling.
+# - `mask_fed_avg`: replace mask-aware aggregation with FedAvg-style aggregation, without recovery.
+# - `re_mask_fed_avg`: FedAvg-style aggregation, with recovery enabled.
+# - `gradient_avg`: replace aggregation with gradient averaging, without recovery.
+# - `re_gradient_avg`: gradient averaging, with recovery enabled.
 
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 3 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 7 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
+# ========================= FedGMR / pr_fl =========================
+# IID:   high=40, medium=30, low=40
+# Non-IID: high=25, medium=30, low=30
 
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex fed_avg -ac wg -num_clients 10 -sample_client low -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex fed_asyn -ac wg -num_clients 10 -sample_client low -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client low -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex fed_avg -ac wg -num_clients 10 -sample_client high -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex fed_asyn -ac wg -num_clients 10 -sample_client high -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client high -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 1 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 15 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#
-#nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 20 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex pr_fl -num_clients 10 -sample_client high   -patience 40 -bp
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex pr_fl -num_clients 10 -sample_client medium -patience 30 -bp
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex pr_fl -num_clients 10 -sample_client low    -patience 40 -bp
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex pr_fl -num_clients 10 -sample_client high   -patience 25 -niid -bp
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex pr_fl -num_clients 10 -sample_client medium -patience 30 -niid -bp
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex pr_fl -num_clients 10 -sample_client low    -patience 30 -niid -bp
 
-#nohup python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex asyn -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-nohup python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex buff -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-nohup python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex mask_fed_avg -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-nohup python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex asyn -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-nohup python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex buff -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-nohup python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex mask_fed_avg -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-nohup python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex asyn -ac wg -num_clients 10 -sample_client medium -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-nohup python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex buff -ac wg -num_clients 10 -sample_client medium -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-nohup python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex mask_fed_avg -ac wg -num_clients 10 -sample_client medium -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-#nohup python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex asyn -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex buff -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-#nohup python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex mask_fed_avg -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client low -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client high  -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
+# ========================= Ablation =========================
+# Keep the same patience as the matched `pr_fl` run.
 
-nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client low -patience 10 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client high  -patience 10 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 10 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
+# IID high
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex gmr             -num_clients 10 -sample_client high   -patience 40 -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex asyn            -num_clients 10 -sample_client high   -patience 40 -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex mask_fed_avg    -num_clients 10 -sample_client high   -patience 40 -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex re_mask_fed_avg -num_clients 10 -sample_client high   -patience 40 -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex gradient_avg    -num_clients 10 -sample_client high   -patience 40 -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client high   -patience 40 -bp
 
+# IID medium
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex gmr             -num_clients 10 -sample_client medium -patience 30 -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex asyn            -num_clients 10 -sample_client medium -patience 30 -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex mask_fed_avg    -num_clients 10 -sample_client medium -patience 30 -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex re_mask_fed_avg -num_clients 10 -sample_client medium -patience 30 -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex gradient_avg    -num_clients 10 -sample_client medium -patience 30 -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client medium -patience 30 -bp
 
-# ========================= Time-trigger GMR (ImageNet100) =========================
-# total virtual time: 250000s
-# nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -num_clients 10 -sample_client high -patience 7 -niid -bp --recover_trigger_mode time --recover_time_total 250000 --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-# nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex gmr_fiarse -num_clients 10 -sample_client high -patience 7 -niid -bp --recover_trigger_mode time --recover_time_total 250000 --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
+# IID low
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex gmr             -num_clients 10 -sample_client low    -patience 40 -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex asyn            -num_clients 10 -sample_client low    -patience 40 -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex mask_fed_avg    -num_clients 10 -sample_client low    -patience 40 -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex re_mask_fed_avg -num_clients 10 -sample_client low    -patience 40 -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex gradient_avg    -num_clients 10 -sample_client low    -patience 40 -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client low    -patience 40 -bp
+
+# Non-IID high
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex gmr             -num_clients 10 -sample_client high   -patience 25 -niid -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex asyn            -num_clients 10 -sample_client high   -patience 25 -niid -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex mask_fed_avg    -num_clients 10 -sample_client high   -patience 25 -niid -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex re_mask_fed_avg -num_clients 10 -sample_client high   -patience 25 -niid -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex gradient_avg    -num_clients 10 -sample_client high   -patience 25 -niid -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client high   -patience 25 -niid -bp
+
+# Non-IID medium
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex gmr             -num_clients 10 -sample_client medium -patience 30 -niid -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex asyn            -num_clients 10 -sample_client medium -patience 30 -niid -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex mask_fed_avg    -num_clients 10 -sample_client medium -patience 30 -niid -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex re_mask_fed_avg -num_clients 10 -sample_client medium -patience 30 -niid -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex gradient_avg    -num_clients 10 -sample_client medium -patience 30 -niid -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client medium -patience 30 -niid -bp
+
+# Non-IID low
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex gmr             -num_clients 10 -sample_client low    -patience 30 -niid -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex asyn            -num_clients 10 -sample_client low    -patience 30 -niid -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex mask_fed_avg    -num_clients 10 -sample_client low    -patience 30 -niid -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex re_mask_fed_avg -num_clients 10 -sample_client low    -patience 30 -niid -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex gradient_avg    -num_clients 10 -sample_client low    -patience 30 -niid -bp
+# python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client low    -patience 30 -niid -bp
+
+# ========================= Baselines =========================
+# Baseline patience is not tuned here. Canonical value: 5.
+
+# IID high
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex fed_avg   -num_clients 10 -sample_client high   -patience 5 -bp
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex fed_asyn  -num_clients 10 -sample_client high   -patience 5 -bp
+# python experiments/ImageNet100/Syn_modelhetero.py       -i 50             -ex heterofl  -num_clients 10 -sample_client high   -patience 5 -bp
+# python experiments/ImageNet100/Syn_modelhetero.py       -i 50             -ex fedrolex  -num_clients 10 -sample_client high   -patience 5 -bp
+# python experiments/ImageNet100/fjord.py                 -i 50             -ex fjord      -num_clients 10 -sample_client high   -patience 5
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex fiarse    -num_clients 10 -sample_client high   -patience 5 -bp
+
+# IID medium
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex fed_avg   -num_clients 10 -sample_client medium -patience 5 -bp
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex fed_asyn  -num_clients 10 -sample_client medium -patience 5 -bp
+# python experiments/ImageNet100/Syn_modelhetero.py       -i 50             -ex heterofl  -num_clients 10 -sample_client medium -patience 5 -bp
+# python experiments/ImageNet100/Syn_modelhetero.py       -i 50             -ex fedrolex  -num_clients 10 -sample_client medium -patience 5 -bp
+# python experiments/ImageNet100/fjord.py                 -i 50             -ex fjord      -num_clients 10 -sample_client medium -patience 5
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex fiarse    -num_clients 10 -sample_client medium -patience 5 -bp
+
+# IID low
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex fed_avg   -num_clients 10 -sample_client low    -patience 5 -bp
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex fed_asyn  -num_clients 10 -sample_client low    -patience 5 -bp
+# python experiments/ImageNet100/Syn_modelhetero.py       -i 50             -ex heterofl  -num_clients 10 -sample_client low    -patience 5 -bp
+# python experiments/ImageNet100/Syn_modelhetero.py       -i 50             -ex fedrolex  -num_clients 10 -sample_client low    -patience 5 -bp
+# python experiments/ImageNet100/fjord.py                 -i 50             -ex fjord      -num_clients 10 -sample_client low    -patience 5
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex fiarse    -num_clients 10 -sample_client low    -patience 5 -bp
+
+# Non-IID high
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex fed_avg   -num_clients 10 -sample_client high   -patience 5 -niid -bp
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex fed_asyn  -num_clients 10 -sample_client high   -patience 5 -niid -bp
+# python experiments/ImageNet100/Syn_modelhetero.py       -i 50             -ex heterofl  -num_clients 10 -sample_client high   -patience 5 -niid -bp
+# python experiments/ImageNet100/Syn_modelhetero.py       -i 50             -ex fedrolex  -num_clients 10 -sample_client high   -patience 5 -niid -bp
+# python experiments/ImageNet100/fjord.py                 -i 50             -ex fjord      -num_clients 10 -sample_client high   -patience 5 -niid
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex fiarse    -num_clients 10 -sample_client high   -patience 5 -niid -bp
+
+# Non-IID medium
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex fed_avg   -num_clients 10 -sample_client medium -patience 5 -niid -bp
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex fed_asyn  -num_clients 10 -sample_client medium -patience 5 -niid -bp
+# python experiments/ImageNet100/Syn_modelhetero.py       -i 50             -ex heterofl  -num_clients 10 -sample_client medium -patience 5 -niid -bp
+# python experiments/ImageNet100/Syn_modelhetero.py       -i 50             -ex fedrolex  -num_clients 10 -sample_client medium -patience 5 -niid -bp
+# python experiments/ImageNet100/fjord.py                 -i 50             -ex fjord      -num_clients 10 -sample_client medium -patience 5 -niid
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex fiarse    -num_clients 10 -sample_client medium -patience 5 -niid -bp
+
+# Non-IID low
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex fed_avg   -num_clients 10 -sample_client low    -patience 5 -niid -bp
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex fed_asyn  -num_clients 10 -sample_client low    -patience 5 -niid -bp
+# python experiments/ImageNet100/Syn_modelhetero.py       -i 50             -ex heterofl  -num_clients 10 -sample_client low    -patience 5 -niid -bp
+# python experiments/ImageNet100/Syn_modelhetero.py       -i 50             -ex fedrolex  -num_clients 10 -sample_client low    -patience 5 -niid -bp
+# python experiments/ImageNet100/fjord.py                 -i 50             -ex fjord      -num_clients 10 -sample_client low    -patience 5 -niid
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex fiarse    -num_clients 10 -sample_client low    -patience 5 -niid -bp

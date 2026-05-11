@@ -1,177 +1,127 @@
-#python experiments/CelebA/Prune_increase_FL_CMD.py -i 25 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-#python experiments/CelebA/Prune_increase_FL_CMD.py -i 25 -ex fed_asyn -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1
+#!/usr/bin/env bash
 
-
-#python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 20 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-#python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex fed_asyn -ac wg -num_clients 10 -sample_client medium -patience 20 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1
-
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 20 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_asyn -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-
-nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex fed_asyn -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 5  -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex Asyn -ac wg -num_clients 10 -sample_client medium -patience 5  -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
+# CIFAR10 command catalog.
+# Commands are intentionally commented out. Remove the leading `#` to run.
 #
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 5  -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex Asyn -ac wg -num_clients 10 -sample_client medium -patience 5  -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 5  -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex Asyn -ac wg -num_clients 10 -sample_client medium -patience 5  -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
+# Method notes:
+# - `pr_fl`: full FedGMR setting used in the main comparison.
+# - `gmr`: GMR-only ablation.
+# - `asyn`: recovery on, but replace asynchronous scheduling with synchronous scheduling.
+# - `mask_fed_avg`: replace mask-aware aggregation with FedAvg-style aggregation, without recovery.
+# - `re_mask_fed_avg`: FedAvg-style aggregation, with recovery enabled.
+# - `gradient_avg`: replace aggregation with gradient averaging, without recovery.
+# - `re_gradient_avg`: gradient averaging, with recovery enabled.
 
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client low -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client high -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
+# ========================= FedGMR / pr_fl =========================
+# IID:   high=10, medium=25, low=1
+# Non-IID: high=15, medium=30, low=1
 
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex gmr -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex gmr -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex gmr -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex heterofl -ac wg -num_clients 10 -sample_client low -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-#nohup python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-#nohup python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex heterofl -ac wg -num_clients 10 -sample_client high -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-#python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 10 -niid && python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex heterofl -ac wg -num_clients 10 -sample_client high -patience 10 -niid && python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 10
-#
-##nohup python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex heterofl -ac wg -num_clients 10 -sample_client low -patience 10 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-#nohup python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 10 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-##nohup python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex heterofl -ac wg -num_clients 10 -sample_client high -patience 10 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-#python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 10 -niid
-#python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex heterofl -ac wg -num_clients 10 -sample_client high -patience 10 -niid
-#python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 10
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex pr_fl -num_clients 10 -sample_client high   -patience 10 -bp
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex pr_fl -num_clients 10 -sample_client medium -patience 25 -bp
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex pr_fl -num_clients 10 -sample_client low    -patience 1  -bp
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex pr_fl -num_clients 10 -sample_client high   -patience 15 -niid -bp
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex pr_fl -num_clients 10 -sample_client medium -patience 30 -niid -bp
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex pr_fl -num_clients 10 -sample_client low    -patience 1  -niid -bp
 
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 5  -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 10  -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 30  -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 10 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 20 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
+# ========================= Ablation =========================
+# Keep the same patience as the matched `pr_fl` run.
+# Main ablation variants: `gmr`, `asyn`, `mask_fed_avg`, `re_mask_fed_avg`, `gradient_avg`, `re_gradient_avg`.
 
-#nohup python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex heterofl -ac wg -num_clients 10 -sample_client low -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-#nohup python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-#nohup python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex heterofl -ac wg -num_clients 10 -sample_client high -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-#
-##nohup python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex heterofl -ac wg -num_clients 10 -sample_client low -patience 10 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-#nohup python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 10 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-##nohup python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex heterofl -ac wg -num_clients 10 -sample_client high -patience 10 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
+# IID high
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex gmr             -num_clients 10 -sample_client high   -patience 10 -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex asyn            -num_clients 10 -sample_client high   -patience 10 -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex mask_fed_avg    -num_clients 10 -sample_client high   -patience 10 -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex re_mask_fed_avg -num_clients 10 -sample_client high   -patience 10 -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex gradient_avg    -num_clients 10 -sample_client high   -patience 10 -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client high   -patience 10 -bp
 
+# IID medium
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex gmr             -num_clients 10 -sample_client medium -patience 25 -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex asyn            -num_clients 10 -sample_client medium -patience 25 -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex mask_fed_avg    -num_clients 10 -sample_client medium -patience 25 -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex re_mask_fed_avg -num_clients 10 -sample_client medium -patience 25 -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex gradient_avg    -num_clients 10 -sample_client medium -patience 25 -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client medium -patience 25 -bp
 
+# IID low
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex gmr             -num_clients 10 -sample_client low    -patience 1 -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex asyn            -num_clients 10 -sample_client low    -patience 1 -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex mask_fed_avg    -num_clients 10 -sample_client low    -patience 1 -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex re_mask_fed_avg -num_clients 10 -sample_client low    -patience 1 -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex gradient_avg    -num_clients 10 -sample_client low    -patience 1 -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client low    -patience 1 -bp
 
+# Non-IID high
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex gmr             -num_clients 10 -sample_client high   -patience 15 -niid -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex asyn            -num_clients 10 -sample_client high   -patience 15 -niid -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex mask_fed_avg    -num_clients 10 -sample_client high   -patience 15 -niid -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex re_mask_fed_avg -num_clients 10 -sample_client high   -patience 15 -niid -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex gradient_avg    -num_clients 10 -sample_client high   -patience 15 -niid -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client high   -patience 15 -niid -bp
 
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex gmr -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-# nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-# # nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 20 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-# nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 30 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-# # nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 40 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-# nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 50 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-# nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 60 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex gmr -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-# nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client high -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-# # nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client high -patience 20 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-# nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client high -patience 30 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-# # nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client high -patience 40 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-# nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client high -patience 50 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-# nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client high -patience 60 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-# nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex gmr -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-# nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client low -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-# # nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client low -patience 20 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-# nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client low -patience 30 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-# # nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client low -patience 40 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-# nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client low -patience 50 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-# nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client low -patience 60 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
+# Non-IID medium
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex gmr             -num_clients 10 -sample_client medium -patience 30 -niid -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex asyn            -num_clients 10 -sample_client medium -patience 30 -niid -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex mask_fed_avg    -num_clients 10 -sample_client medium -patience 30 -niid -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex re_mask_fed_avg -num_clients 10 -sample_client medium -patience 30 -niid -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex gradient_avg    -num_clients 10 -sample_client medium -patience 30 -niid -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client medium -patience 30 -niid -bp
 
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_asyn -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_asyn -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_asyn -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
+# Non-IID low
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex gmr             -num_clients 10 -sample_client low    -patience 1 -niid -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex asyn            -num_clients 10 -sample_client low    -patience 1 -niid -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex mask_fed_avg    -num_clients 10 -sample_client low    -patience 1 -niid -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex re_mask_fed_avg -num_clients 10 -sample_client low    -patience 1 -niid -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex gradient_avg    -num_clients 10 -sample_client low    -patience 1 -niid -bp
+# python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client low    -patience 1 -niid -bp
 
+# ========================= Baselines =========================
+# Baseline patience is not tuned here. Canonical value: 5.
 
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_avg -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_avg -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_avg -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-#
+# IID high
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_avg   -num_clients 10 -sample_client high   -patience 5 -bp
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_asyn  -num_clients 10 -sample_client high   -patience 5 -bp
+# python experiments/CIFAR10/Syn_modelhetero.py       -i 25             -ex heterofl  -num_clients 10 -sample_client high   -patience 5 -bp
+# python experiments/CIFAR10/Syn_modelhetero.py       -i 25             -ex fedrolex  -num_clients 10 -sample_client high   -patience 5 -bp
+# python experiments/CIFAR10/fjord.py                 -i 25             -ex fjord      -num_clients 10 -sample_client high   -patience 5
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fiarse    -num_clients 10 -sample_client high   -patience 5 -bp
 
-##patience for GMR
-##hypermeter
-##nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-##nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex mask_fed_avg -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#
-##nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex mask_fed_avg -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-##nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-##nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex mask_fed_avg -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#
-#
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client high -patience 2 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client high -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client low -patience 2 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client low -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 500 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 2 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-##nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 10 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#
+# IID medium
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_avg   -num_clients 10 -sample_client medium -patience 5 -bp
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_asyn  -num_clients 10 -sample_client medium -patience 5 -bp
+# python experiments/CIFAR10/Syn_modelhetero.py       -i 25             -ex heterofl  -num_clients 10 -sample_client medium -patience 5 -bp
+# python experiments/CIFAR10/Syn_modelhetero.py       -i 25             -ex fedrolex  -num_clients 10 -sample_client medium -patience 5 -bp
+# python experiments/CIFAR10/fjord.py                 -i 25             -ex fjord      -num_clients 10 -sample_client medium -patience 5
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fiarse    -num_clients 10 -sample_client medium -patience 5 -bp
 
-## ablation experiment
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex gmr -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex asyn -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex buff -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-##nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex mask_fed_avg -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex ims -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex gmr -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex asyn -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex buff -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-##nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex mask_fed_avg -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex ims -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex gmr -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex asyn -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex buff -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-##nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex mask_fed_avg -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#
-##BaseLine
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_asyn -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_avg -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_avg -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_asyn -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client high -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_avg -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_asyn -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client low -patience 5 -niid > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-#
-#
-##BaseLine
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_avg -ac wg -num_clients 10 -sample_client medium -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_asyn -ac wg -num_clients 10 -sample_client medium -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client high -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_avg -ac wg -num_clients 10 -sample_client high -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_asyn -ac wg -num_clients 10 -sample_client high -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client high -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client low -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_avg -ac wg -num_clients 10 -sample_client low -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_asyn -ac wg -num_clients 10 -sample_client low -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client low -patience 5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#
-#
-#
-## server_up ims
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 5 -niid -server_up 40.0 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex ims -ac wg -num_clients 10 -sample_client medium -patience 5 -niid -server_up 40.0 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 5 -niid -server_up 20.0 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex ims -ac wg -num_clients 10 -sample_client medium -patience 5 -niid -server_up 20.0 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 5 -niid -server_up 5.0 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex ims -ac wg -num_clients 10 -sample_client medium -patience 5 -niid -server_up 5.0 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 5 -niid -server_up 2.5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex ims -ac wg -num_clients 10 -sample_client medium -patience 5 -niid -server_up 2.5 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 5 -niid -server_up 10.0 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex ims -ac wg -num_clients 10 -sample_client medium -patience 5 -niid -server_up 10.0 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 5 -niid -server_up 60.0 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-#nohup python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex ims -ac wg -num_clients 10 -sample_client medium -patience 5 -niid -server_up 60.0 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
+# IID low
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_avg   -num_clients 10 -sample_client low    -patience 5 -bp
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_asyn  -num_clients 10 -sample_client low    -patience 5 -bp
+# python experiments/CIFAR10/Syn_modelhetero.py       -i 25             -ex heterofl  -num_clients 10 -sample_client low    -patience 5 -bp
+# python experiments/CIFAR10/Syn_modelhetero.py       -i 25             -ex fedrolex  -num_clients 10 -sample_client low    -patience 5 -bp
+# python experiments/CIFAR10/fjord.py                 -i 25             -ex fjord      -num_clients 10 -sample_client low    -patience 5
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fiarse    -num_clients 10 -sample_client low    -patience 5 -bp
 
+# Non-IID high
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_avg   -num_clients 10 -sample_client high   -patience 5 -niid -bp
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_asyn  -num_clients 10 -sample_client high   -patience 5 -niid -bp
+# python experiments/CIFAR10/Syn_modelhetero.py       -i 25             -ex heterofl  -num_clients 10 -sample_client high   -patience 5 -niid -bp
+# python experiments/CIFAR10/Syn_modelhetero.py       -i 25             -ex fedrolex  -num_clients 10 -sample_client high   -patience 5 -niid -bp
+# python experiments/CIFAR10/fjord.py                 -i 25             -ex fjord      -num_clients 10 -sample_client high   -patience 5 -niid
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fiarse    -num_clients 10 -sample_client high   -patience 5 -niid -bp
 
-# ========================= Time-trigger GMR (CIFAR10) =========================
-# total virtual time: 220000s
-# nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -num_clients 10 -sample_client high -patience 7 -niid -bp --recover_trigger_mode time --recover_time_total 220000 --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-# nohup python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex gmr_fiarse -num_clients 10 -sample_client high -patience 7 -niid -bp --recover_trigger_mode time --recover_time_total 220000 --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
+# Non-IID medium
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_avg   -num_clients 10 -sample_client medium -patience 5 -niid -bp
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_asyn  -num_clients 10 -sample_client medium -patience 5 -niid -bp
+# python experiments/CIFAR10/Syn_modelhetero.py       -i 25             -ex heterofl  -num_clients 10 -sample_client medium -patience 5 -niid -bp
+# python experiments/CIFAR10/Syn_modelhetero.py       -i 25             -ex fedrolex  -num_clients 10 -sample_client medium -patience 5 -niid -bp
+# python experiments/CIFAR10/fjord.py                 -i 25             -ex fjord      -num_clients 10 -sample_client medium -patience 5 -niid
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fiarse    -num_clients 10 -sample_client medium -patience 5 -niid -bp
+
+# Non-IID low
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_avg   -num_clients 10 -sample_client low    -patience 5 -niid -bp
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_asyn  -num_clients 10 -sample_client low    -patience 5 -niid -bp
+# python experiments/CIFAR10/Syn_modelhetero.py       -i 25             -ex heterofl  -num_clients 10 -sample_client low    -patience 5 -niid -bp
+# python experiments/CIFAR10/Syn_modelhetero.py       -i 25             -ex fedrolex  -num_clients 10 -sample_client low    -patience 5 -niid -bp
+# python experiments/CIFAR10/fjord.py                 -i 25             -ex fjord      -num_clients 10 -sample_client low    -patience 5 -niid
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fiarse    -num_clients 10 -sample_client low    -patience 5 -niid -bp

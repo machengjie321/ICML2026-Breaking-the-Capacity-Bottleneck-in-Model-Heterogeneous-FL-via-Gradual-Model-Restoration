@@ -1,4 +1,0 @@
-nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0  -ex pr_fl -num_clients 10 -sample_client high -patience 50 -niid  -bp  > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0  -ex pr_fl -num_clients 10 -sample_client low -patience 50 -niid  -bp > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0  -ex pr_fl -num_clients 10 -sample_client medium -patience 50 -niid -bp  > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&
-nohup python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ic 2.0  -ex pr_fl -num_clients 10 -sample_client high -patience 50 -bp  > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &&

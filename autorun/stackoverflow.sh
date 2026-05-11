@@ -1,7 +1,127 @@
 #!/usr/bin/env bash
 
+# StackOverflow command catalog.
+# Commands are intentionally commented out. Remove the leading `#` to run.
+#
+# Method notes:
+# - `pr_fl`: full FedGMR setting used in the main comparison.
+# - `gmr`: GMR-only ablation.
+# - `asyn`: recovery on, but replace asynchronous scheduling with synchronous scheduling.
+# - `mask_fed_avg`: replace mask-aware aggregation with FedAvg-style aggregation, without recovery.
+# - `re_mask_fed_avg`: FedAvg-style aggregation, with recovery enabled.
+# - `gradient_avg`: replace aggregation with gradient averaging, without recovery.
+# - `re_gradient_avg`: gradient averaging, with recovery enabled.
 
-# ========================= Time-trigger GMR (StackOverflow) =========================
-# total virtual time: 70000s
-# nohup python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ex pr_fl -num_clients 10 -sample_client high -patience 7 -niid -bp --recover_trigger_mode time --recover_time_total 70000 --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
-# nohup python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ex gmr_fiarse -num_clients 10 -sample_client high -patience 7 -niid -bp --recover_trigger_mode time --recover_time_total 70000 --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0 > "log_$(date +'%Y%m%d%H%M%S%3N').log" 2>&1 &
+# ========================= FedGMR / pr_fl =========================
+# IID:   high=15, medium=20, low=8
+# Non-IID: high=10, medium=10, low=20
+
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex pr_fl -num_clients 10 -sample_client high   -patience 15 -bp
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex pr_fl -num_clients 10 -sample_client medium -patience 20 -bp
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex pr_fl -num_clients 10 -sample_client low    -patience 8  -bp
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex pr_fl -num_clients 10 -sample_client high   -patience 10 -niid -bp
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex pr_fl -num_clients 10 -sample_client medium -patience 10 -niid -bp
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex pr_fl -num_clients 10 -sample_client low    -patience 20 -niid -bp
+
+# ========================= Ablation =========================
+# Keep the same patience as the matched `pr_fl` run.
+# `gradient_avg`, `re_gradient_avg`, and `re_mask_fed_avg` use `Ablation_Prune_increase_FL_CMD2.py`.
+
+# IID high
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD.py  -i 25 -ic 2.0 -ex gmr             -num_clients 10 -sample_client high   -patience 15 -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD.py  -i 25 -ic 2.0 -ex asyn            -num_clients 10 -sample_client high   -patience 15 -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD.py  -i 25 -ic 2.0 -ex mask_fed_avg    -num_clients 10 -sample_client high   -patience 15 -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD2.py -i 25 -ic 2.0 -ex re_mask_fed_avg -num_clients 10 -sample_client high   -patience 15 -bp -re
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD2.py -i 25 -ic 2.0 -ex gradient_avg    -num_clients 10 -sample_client high   -patience 15 -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD2.py -i 25 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client high   -patience 15 -bp -re
+
+# IID medium
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD.py  -i 25 -ic 2.0 -ex gmr             -num_clients 10 -sample_client medium -patience 20 -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD.py  -i 25 -ic 2.0 -ex asyn            -num_clients 10 -sample_client medium -patience 20 -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD.py  -i 25 -ic 2.0 -ex mask_fed_avg    -num_clients 10 -sample_client medium -patience 20 -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD2.py -i 25 -ic 2.0 -ex re_mask_fed_avg -num_clients 10 -sample_client medium -patience 20 -bp -re
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD2.py -i 25 -ic 2.0 -ex gradient_avg    -num_clients 10 -sample_client medium -patience 20 -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD2.py -i 25 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client medium -patience 20 -bp -re
+
+# IID low
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD.py  -i 25 -ic 2.0 -ex gmr             -num_clients 10 -sample_client low    -patience 8 -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD.py  -i 25 -ic 2.0 -ex asyn            -num_clients 10 -sample_client low    -patience 8 -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD.py  -i 25 -ic 2.0 -ex mask_fed_avg    -num_clients 10 -sample_client low    -patience 8 -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD2.py -i 25 -ic 2.0 -ex re_mask_fed_avg -num_clients 10 -sample_client low    -patience 8 -bp -re
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD2.py -i 25 -ic 2.0 -ex gradient_avg    -num_clients 10 -sample_client low    -patience 8 -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD2.py -i 25 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client low    -patience 8 -bp -re
+
+# Non-IID high
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD.py  -i 25 -ic 2.0 -ex gmr             -num_clients 10 -sample_client high   -patience 10 -niid -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD.py  -i 25 -ic 2.0 -ex asyn            -num_clients 10 -sample_client high   -patience 10 -niid -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD.py  -i 25 -ic 2.0 -ex mask_fed_avg    -num_clients 10 -sample_client high   -patience 10 -niid -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD2.py -i 25 -ic 2.0 -ex re_mask_fed_avg -num_clients 10 -sample_client high   -patience 10 -niid -bp -re
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD2.py -i 25 -ic 2.0 -ex gradient_avg    -num_clients 10 -sample_client high   -patience 10 -niid -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD2.py -i 25 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client high   -patience 10 -niid -bp -re
+
+# Non-IID medium
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD.py  -i 25 -ic 2.0 -ex gmr             -num_clients 10 -sample_client medium -patience 10 -niid -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD.py  -i 25 -ic 2.0 -ex asyn            -num_clients 10 -sample_client medium -patience 10 -niid -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD.py  -i 25 -ic 2.0 -ex mask_fed_avg    -num_clients 10 -sample_client medium -patience 10 -niid -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD2.py -i 25 -ic 2.0 -ex re_mask_fed_avg -num_clients 10 -sample_client medium -patience 10 -niid -bp -re
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD2.py -i 25 -ic 2.0 -ex gradient_avg    -num_clients 10 -sample_client medium -patience 10 -niid -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD2.py -i 25 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client medium -patience 10 -niid -bp -re
+
+# Non-IID low
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD.py  -i 25 -ic 2.0 -ex gmr             -num_clients 10 -sample_client low    -patience 20 -niid -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD.py  -i 25 -ic 2.0 -ex asyn            -num_clients 10 -sample_client low    -patience 20 -niid -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD.py  -i 25 -ic 2.0 -ex mask_fed_avg    -num_clients 10 -sample_client low    -patience 20 -niid -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD2.py -i 25 -ic 2.0 -ex re_mask_fed_avg -num_clients 10 -sample_client low    -patience 20 -niid -bp -re
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD2.py -i 25 -ic 2.0 -ex gradient_avg    -num_clients 10 -sample_client low    -patience 20 -niid -bp
+# python experiments/stackoverflow/Ablation_Prune_increase_FL_CMD2.py -i 25 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client low    -patience 20 -niid -bp -re
+
+# ========================= Baselines =========================
+# Baseline patience is not tuned here. Canonical value: 10.
+
+# IID high
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_avg   -num_clients 10 -sample_client high   -patience 10 -bp
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_asyn  -num_clients 10 -sample_client high   -patience 10 -bp
+# python experiments/stackoverflow/Syn_modelhetero.py       -i 25             -ex heterofl  -num_clients 10 -sample_client high   -patience 10 -bp
+# python experiments/stackoverflow/Syn_modelhetero.py       -i 25             -ex fedrolex  -num_clients 10 -sample_client high   -patience 10 -bp
+# python experiments/stackoverflow/fjord.py                 -i 25             -ex fjord      -num_clients 10 -sample_client high   -patience 10
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fiarse    -num_clients 10 -sample_client high   -patience 10 -bp
+
+# IID medium
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_avg   -num_clients 10 -sample_client medium -patience 10 -bp
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_asyn  -num_clients 10 -sample_client medium -patience 10 -bp
+# python experiments/stackoverflow/Syn_modelhetero.py       -i 25             -ex heterofl  -num_clients 10 -sample_client medium -patience 10 -bp
+# python experiments/stackoverflow/Syn_modelhetero.py       -i 25             -ex fedrolex  -num_clients 10 -sample_client medium -patience 10 -bp
+# python experiments/stackoverflow/fjord.py                 -i 25             -ex fjord      -num_clients 10 -sample_client medium -patience 10
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fiarse    -num_clients 10 -sample_client medium -patience 10 -bp
+
+# IID low
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_avg   -num_clients 10 -sample_client low    -patience 10 -bp
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_asyn  -num_clients 10 -sample_client low    -patience 10 -bp
+# python experiments/stackoverflow/Syn_modelhetero.py       -i 25             -ex heterofl  -num_clients 10 -sample_client low    -patience 10 -bp
+# python experiments/stackoverflow/Syn_modelhetero.py       -i 25             -ex fedrolex  -num_clients 10 -sample_client low    -patience 10 -bp
+# python experiments/stackoverflow/fjord.py                 -i 25             -ex fjord      -num_clients 10 -sample_client low    -patience 10
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fiarse    -num_clients 10 -sample_client low    -patience 10 -bp
+
+# Non-IID high
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_avg   -num_clients 10 -sample_client high   -patience 10 -niid -bp
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_asyn  -num_clients 10 -sample_client high   -patience 10 -niid -bp
+# python experiments/stackoverflow/Syn_modelhetero.py       -i 25             -ex heterofl  -num_clients 10 -sample_client high   -patience 10 -niid -bp
+# python experiments/stackoverflow/Syn_modelhetero.py       -i 25             -ex fedrolex  -num_clients 10 -sample_client high   -patience 10 -niid -bp
+# python experiments/stackoverflow/fjord.py                 -i 25             -ex fjord      -num_clients 10 -sample_client high   -patience 10 -niid
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fiarse    -num_clients 10 -sample_client high   -patience 10 -niid -bp
+
+# Non-IID medium
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_avg   -num_clients 10 -sample_client medium -patience 10 -niid -bp
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_asyn  -num_clients 10 -sample_client medium -patience 10 -niid -bp
+# python experiments/stackoverflow/Syn_modelhetero.py       -i 25             -ex heterofl  -num_clients 10 -sample_client medium -patience 10 -niid -bp
+# python experiments/stackoverflow/Syn_modelhetero.py       -i 25             -ex fedrolex  -num_clients 10 -sample_client medium -patience 10 -niid -bp
+# python experiments/stackoverflow/fjord.py                 -i 25             -ex fjord      -num_clients 10 -sample_client medium -patience 10 -niid
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fiarse    -num_clients 10 -sample_client medium -patience 10 -niid -bp
+
+# Non-IID low
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_avg   -num_clients 10 -sample_client low    -patience 10 -niid -bp
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fed_asyn  -num_clients 10 -sample_client low    -patience 10 -niid -bp
+# python experiments/stackoverflow/Syn_modelhetero.py       -i 25             -ex heterofl  -num_clients 10 -sample_client low    -patience 10 -niid -bp
+# python experiments/stackoverflow/Syn_modelhetero.py       -i 25             -ex fedrolex  -num_clients 10 -sample_client low    -patience 10 -niid -bp
+# python experiments/stackoverflow/fjord.py                 -i 25             -ex fjord      -num_clients 10 -sample_client low    -patience 10 -niid
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex fiarse    -num_clients 10 -sample_client low    -patience 10 -niid -bp
