@@ -76,10 +76,17 @@ AUTORUN_SH_INCLUDE = {
     "stackoverflow.sh",
 }
 
+FEDGMR_FILE_INCLUDE = {
+    "GMR.pdf",
+    "GMR_framework.png",
+    "learning_rate_different_density_models_strip.png",
+    "GMR_on_other_MHFL_methods.png",
+    "Ablation_method.png",
+    "Fixed_restoration_timeing_plot.png",
+}
 
-PUBLIC_README = """# Breaking the Capacity Bottleneck in Model-Heterogeneous Federated Learning via Gradual Model Restoration
 
-Accepted at ICML 2026.
+PUBLIC_README = """# Breaking the Capacity Bottleneck in Model-Heterogeneous Federated Learning via Gradual Model Restoration (Accepted at ICML 2026)
 
 This project studies a stage-dependent problem in model-heterogeneous federated learning (MHFL): small sub-models help bandwidth-constrained clients participate efficiently in the early stage, but their contribution fades later as model capacity becomes the bottleneck. FedGMR addresses this issue through **Gradual Model Restoration (GMR)**, which progressively restores client model density during training so that bandwidth-constrained clients remain useful contributors in the late stage as well.
 
@@ -104,7 +111,7 @@ Around this core mechanism, the project also includes:
 - **Theory for heterogeneous sub-model training.** The analysis characterizes the bias and variance introduced by incomplete client updates, highlights the role of average density and coverage, and shows that GMR narrows the optimization gap toward full-model FL.
 - **Cross-method generality.** GMR is effective not only in the proposed framework but also when applied on top of other MHFL methods.
 
-## Main Figures
+## Main Figures and Results
 
 ### 1. FedGMR framework and core idea
 
@@ -112,33 +119,7 @@ This is the main idea figure of the paper. FedGMR starts from the observation th
 
 ![FedGMR framework](FedGMR/GMR_framework.png)
 
-### 2. Stage-dependent benefit of model density
-
-This figure illustrates the central empirical observation behind FedGMR: smaller sub-models improve faster early, while larger-capacity models become more beneficial later.
-
-![Learning-rate analysis](FedGMR/learning_rate_different_density_models_strip.png)
-
-### 3. Cross-method gains from GMR
-
-Applying GMR to multiple MHFL baselines consistently improves performance. This supports that the main contribution is the **restoration mechanism itself**, rather than one specific pruning rule or one specific base method.
-
-![Cross-method comparison](FedGMR/GMR_on_other_MHFL_methods.png)
-
-### 4. Aggregation and ablation analysis
-
-The ablation results highlight that restoration and aggregation are coupled: GMR improves late-stage usefulness, while mask-aware aggregation helps maintain stability during restoration.
-
-![Ablation analysis](FedGMR/Ablation_method.png)
-
-### 5. Robustness to restoration timing
-
-FedGMR does not depend on one exact restoration trigger. A fixed-time restoration variant remains effective across datasets, although adaptive triggering can further improve some settings.
-
-![Fixed-time restoration](FedGMR/Fixed_restoration_timeing_plot.png)
-
-## Representative Results
-
-### Main baseline comparison under high heterogeneity
+### 2. Main baseline comparison under high heterogeneity
 
 The table below summarizes the main baseline comparison from the paper under the hardest setting, where the gain from gradual restoration is most visible.
 
@@ -154,7 +135,17 @@ The table below summarizes the main baseline comparison from the paper under the
 
 Under high heterogeneity, FedGMR achieves the strongest gains on the hardest settings, especially on CIFAR-10 and ImageNet-100 under Non-IID splits. This is where fixed low-density sub-models suffer the most from late-stage capacity limits.
 
-### Cross-method gains on FEMNIST
+### 3. Stage-dependent benefit of model density
+
+This figure illustrates the central empirical observation behind FedGMR: smaller sub-models improve faster early, while larger-capacity models become more beneficial later.
+
+![Learning-rate analysis](FedGMR/learning_rate_different_density_models_strip.png)
+
+### 4. Cross-method gains from GMR
+
+Applying GMR to multiple MHFL baselines consistently improves performance. This supports that the main contribution is the **restoration mechanism itself**, rather than one specific pruning rule or one specific base method.
+
+![Cross-method comparison](FedGMR/GMR_on_other_MHFL_methods.png)
 
 These representative results show that adding GMR on top of different MHFL methods yields consistent improvements.
 
@@ -165,7 +156,17 @@ These representative results show that adding GMR on top of different MHFL metho
 | FedRolex | 77.83 | 80.36 | 81.58 |
 | FIARSE | 78.77 | 79.56 | 81.97 |
 
-### Fixed-time restoration still works
+### 5. Aggregation and ablation analysis
+
+The ablation results highlight that restoration and aggregation are coupled: GMR improves late-stage usefulness, while mask-aware aggregation helps maintain stability during restoration.
+
+![Ablation analysis](FedGMR/Ablation_method.png)
+
+### 6. Robustness to restoration timing
+
+FedGMR does not depend on one exact restoration trigger. A fixed-time restoration variant remains effective across datasets, although adaptive triggering can further improve some settings.
+
+![Fixed-time restoration](FedGMR/Fixed_restoration_timeing_plot.png)
 
 The fixed-time variant removes server-side early-stopping/stagnation triggering and restores directly according to training progress. It still improves over `w/o GMR`, which supports that the value of GMR does not depend on one exact trigger.
 
@@ -182,7 +183,7 @@ This public release includes:
 
 - core training and aggregation code,
 - experiment scripts and configuration files,
-- selected visualization assets under `figure/` and `FedGMR/`,
+- selected visualization assets under `figure/` and the minimal `FedGMR/` release folder,
 - root-level notebooks used for plotting and result analysis,
 - `control/` and `utils/` modules required by experiment entrypoints,
 - `setenv.sh` for environment setup.
@@ -354,6 +355,10 @@ def should_skip(path: Path, src_root: Path) -> bool:
         return True
     if matches_any(rel, EXCLUDE_PATH_PATTERNS):
         return True
+    if path.is_file() and rel.startswith("FedGMR/"):
+        rel_parts = path.relative_to(src_root).parts
+        if len(rel_parts) != 2 or rel_parts[1] not in FEDGMR_FILE_INCLUDE:
+            return True
     return False
 
 
