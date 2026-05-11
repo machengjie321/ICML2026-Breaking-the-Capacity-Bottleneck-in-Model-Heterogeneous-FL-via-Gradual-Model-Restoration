@@ -222,7 +222,15 @@ class args:
     def __init__(self, parse_args):
         self.seed = 0
         self.lr_scheduler = False
-        self.ex = parse_args.ex
+        ex_lower = parse_args.ex.lower()
+        if ex_lower.startswith(('w/o_gmr', 'wo_gmr', 'gmr')):
+            self.ex = 'wo_gmr'
+        elif ex_lower.startswith(('w/o_asyn', 'wo_asyn', 'asyn')):
+            self.ex = 'wo_asyn'
+        elif ex_lower.startswith(('pr_fl', 'fedgmr')):
+            self.ex = 'FedGMR'
+        else:
+            self.ex = parse_args.ex
         self.client_selection = False
         self.stal = 'poly'
         self.stal_a = 0.6
@@ -238,7 +246,7 @@ class args:
         
 
         self.bias_prune = parse_args.bias_prune
-        if self.ex.lower().startswith('gmr'):
+        if self.ex.lower().startswith('wo_gmr'):
             self.min_density = 0.02
             self.merge = 'buff_mask_fed_avg'
             self.chronous = 'asyn'
@@ -265,7 +273,7 @@ class args:
             self.recover = False
             self.Res = False
             self.need_client_acc = True
-        elif self.ex.lower().startswith('asyn'):
+        elif self.ex.lower().startswith('wo_asyn'):
             self.min_density = 0.02
             self.merge = 'buff_mask_fed_avg'
             self.chronous = 'syn'
@@ -281,7 +289,7 @@ class args:
             self.Res = True
             self.need_client_acc = True
 
-        elif self.ex.lower().startswith('pr_fl'):
+        elif self.ex.lower().startswith('fedgmr'):
             self.min_density = 0.02
             self.merge = 'buff_mask_fed_avg'
             self.chronous = 'asyn'

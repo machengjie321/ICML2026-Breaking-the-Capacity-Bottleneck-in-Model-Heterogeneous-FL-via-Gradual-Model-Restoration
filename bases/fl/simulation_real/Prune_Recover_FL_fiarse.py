@@ -1066,7 +1066,7 @@ class FedMapServer(ABC):
                 model            模型
                 model_path       模型保存地址
         '''
-        if self.ex in ['fed_avg','fed_asyn','heterofl','pr_fl']:
+        if self.ex in ['fed_avg','fed_asyn','heterofl','pr_fl','fedgmr']:
             self.list_est_time.append(timer() - self.start_time)
             checkpoint = {'self.model': fedavg_model,
                           'self.control.accumulate_weight_dict':self.control.accumulate_weight_dict

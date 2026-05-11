@@ -9,19 +9,19 @@
 # ========================= Fixed-time restoration =========================
 
 # FEMNIST: total virtual time = 70000s
-# python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex pr_fl     -num_clients 10 -sample_client high -patience 7 -niid -bp --recover_trigger_mode time --recover_time_total 70000  --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0
+# python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex FedGMR     -num_clients 10 -sample_client high -patience 7 -niid -bp --recover_trigger_mode time --recover_time_total 70000  --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0
 # python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex gmr_fiarse -num_clients 10 -sample_client high -patience 7 -niid -bp --recover_trigger_mode time --recover_time_total 70000  --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0
 
 # CIFAR10: total virtual time = 220000s
-# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ex pr_fl     -num_clients 10 -sample_client high -patience 15 -niid -bp --recover_trigger_mode time --recover_time_total 220000 --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0
+# python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ex FedGMR     -num_clients 10 -sample_client high -patience 15 -niid -bp --recover_trigger_mode time --recover_time_total 220000 --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0
 # python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 25 -ex gmr_fiarse -num_clients 10 -sample_client high -patience 15 -niid -bp --recover_trigger_mode time --recover_time_total 220000 --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0
 
 # ImageNet100: total virtual time = 250000s
-# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex pr_fl     -num_clients 10 -sample_client high -patience 25 -niid -bp --recover_trigger_mode time --recover_time_total 250000 --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0
+# python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex FedGMR     -num_clients 10 -sample_client high -patience 25 -niid -bp --recover_trigger_mode time --recover_time_total 250000 --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0
 # python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex gmr_fiarse -num_clients 10 -sample_client high -patience 25 -niid -bp --recover_trigger_mode time --recover_time_total 250000 --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0
 
 # StackOverflow: total virtual time = 70000s
-# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ex pr_fl     -num_clients 10 -sample_client high -patience 10 -niid -bp --recover_trigger_mode time --recover_time_total 70000  --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0
+# python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ex FedGMR     -num_clients 10 -sample_client high -patience 10 -niid -bp --recover_trigger_mode time --recover_time_total 70000  --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0
 # python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ex gmr_fiarse -num_clients 10 -sample_client high -patience 10 -niid -bp --recover_trigger_mode time --recover_time_total 70000  --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0
 
 # ========================= Apply GMR to other MHFL methods =========================

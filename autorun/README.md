@@ -9,8 +9,8 @@ This directory now keeps one script per current dataset:
 
 Each dataset script contains:
 
-- FedGMR / `pr_fl` commands with the selected patience for that dataset.
-- Matching ablation commands using the same patience as the corresponding `pr_fl` run.
+- `FedGMR` commands with the selected patience for that dataset.
+- Matching ablation commands using the same patience as the corresponding `FedGMR` run.
 - Baseline commands, grouped separately inside the same file.
 
 Additional experiments are collected in:

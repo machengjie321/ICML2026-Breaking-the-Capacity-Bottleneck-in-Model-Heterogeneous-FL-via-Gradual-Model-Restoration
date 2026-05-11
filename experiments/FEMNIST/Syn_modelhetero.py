@@ -193,7 +193,8 @@ class args:
             self.recover = False
             self.Res = False
 
-        elif self.ex.lower().startswith('pr_fl'):
+        elif self.ex.lower().startswith(('pr_fl', 'fedgmr')):
+            self.ex = 'FedGMR'
             self.min_density = 0.02
             self.merge = 'buff_mask_fed_avg'
             self.chronous = 'asyn'

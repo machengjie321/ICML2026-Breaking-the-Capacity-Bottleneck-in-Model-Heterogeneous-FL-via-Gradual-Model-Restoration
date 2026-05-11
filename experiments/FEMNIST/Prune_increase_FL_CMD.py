@@ -371,7 +371,8 @@ class ExperimentArgs:
             self.accumulate = "w"
             self.use_coeff = True
 
-        elif experiment_lower.startswith("pr_fl"):
+        elif experiment_lower.startswith(("pr_fl", "fedgmr")):
+            self.ex = "FedGMR"
             self.min_density = 0.02
             self.merge = "buff_mask_fed_avg"
             self.chronous = "asyn"
@@ -542,7 +543,7 @@ if __name__ == "__main__":
         )
     num_users = torch.load(num_user_path)
 
-    if args.ex.lower().startswith("pr_fl"):
+    if args.ex.lower().startswith("fedgmr") or parse_args.ex.lower().startswith("pr_fl"):
         # Legacy compatibility for FEMNIST PR-FL:
         # old script instantiated Conv2 twice before server init
         # (one throwaway model, then the server model), which changes RNG stream.

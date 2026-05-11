@@ -292,14 +292,14 @@ The commands below are representative examples extracted from the existing `auto
 ```bash
 source setenv.sh
 python experiments/CIFAR10/Prune_increase_FL_CMD.py -i 50 -ex fed_asyn -ac wg -num_clients 10 -sample_client medium -patience 5 -niid
-python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex gmr -ac wg -num_clients 10 -sample_client medium -patience 5 -niid
+python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex wo_gmr -ac wg -num_clients 10 -sample_client medium -patience 5 -niid
 ```
 
 Ablation-style examples from the shell scripts use the same patience values as the paired comparison settings:
 
 ```bash
-python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex gmr -ac wg -num_clients 10 -sample_client medium -patience 5 -niid
-python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex asyn -num_clients 10 -sample_client medium -patience 25 -bp
+python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ex wo_gmr -ac wg -num_clients 10 -sample_client medium -patience 5 -niid
+python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex wo_asyn -num_clients 10 -sample_client medium -patience 25 -bp
 python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex mask_fed_avg -num_clients 10 -sample_client medium -patience 25 -bp
 python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex gradient_avg -num_clients 10 -sample_client medium -patience 25 -bp
 python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client medium -patience 25 -bp -re
@@ -308,27 +308,27 @@ python experiments/CIFAR10/Ablation_Prune_increase_FL_CMD.py -i 50 -ic 2.0 -ex r
 The notebook-based CIFAR10 comparison sweep uses the following patience settings:
 
 - IID:
-  - high: `pr_fl` `10`, `fed_avg` `5`, `fed_asyn` `5`, `heterofl` `5`, `fedrolex` `5`, `fjord` `5`, `fiarse` `10`
-  - medium: `pr_fl` `25`, `fed_avg` `5`, `fed_asyn` `5`, `heterofl` `5`, `fedrolex` `5`, `fjord` `5`, `fiarse` `10`
-  - low: `pr_fl` `1`, `fed_asyn` `5`, `heterofl` `5`, `fedrolex` `5`, `fjord` `5`, `fiarse` `10`
+  - high: `FedGMR` `10`, `fed_avg` `5`, `fed_asyn` `5`, `heterofl` `5`, `fedrolex` `5`, `fjord` `5`, `fiarse` `10`
+  - medium: `FedGMR` `25`, `fed_avg` `5`, `fed_asyn` `5`, `heterofl` `5`, `fedrolex` `5`, `fjord` `5`, `fiarse` `10`
+  - low: `FedGMR` `1`, `fed_asyn` `5`, `heterofl` `5`, `fedrolex` `5`, `fjord` `5`, `fiarse` `10`
 - Non-IID:
-  - high: `pr_fl` `15`, `fed_avg` `5`, `fed_asyn` `5`, `heterofl` `5`, `fedrolex` `5`, `fjord` `5`, `fiarse` `10`
-  - medium: `pr_fl` `30`, `fed_avg` `5`, `fed_asyn` `5`, `heterofl` `5`, `fedrolex` `5`, `fjord` `5`, `fiarse` `10`
-  - low: `pr_fl` `1`, `fed_avg` `5`, `fed_asyn` `5`, `heterofl` `5`, `fedrolex` `5`, `fjord` `5`, `fiarse` `10`
+  - high: `FedGMR` `15`, `fed_avg` `5`, `fed_asyn` `5`, `heterofl` `5`, `fedrolex` `5`, `fjord` `5`, `fiarse` `10`
+  - medium: `FedGMR` `30`, `fed_avg` `5`, `fed_asyn` `5`, `heterofl` `5`, `fedrolex` `5`, `fjord` `5`, `fiarse` `10`
+  - low: `FedGMR` `1`, `fed_avg` `5`, `fed_asyn` `5`, `heterofl` `5`, `fedrolex` `5`, `fjord` `5`, `fiarse` `10`
 
 ### FEMNIST
 
 ```bash
 source setenv.sh
-python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex pr_fl -num_clients 10 -sample_client high -patience 5 -niid -bp --recover_step_mode fixed --recover_step 0.1
+python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex FedGMR -num_clients 10 -sample_client high -patience 5 -niid -bp --recover_step_mode fixed --recover_step 0.1
 python experiments/FEMNIST/Prune_increase_FL_CMD.py -i 25 -ex gmr_fiarse -num_clients 10 -sample_client high -patience 10 -niid -bp --recover_step_mode ladder
 ```
 
 Ablation-style FEMNIST examples from the shell scripts also keep the same patience as the paired runs:
 
 ```bash
-python experiments/FEMNIST/Ablation_Prune_increase_FL_CMD.py -i 25 -ex gmr -num_clients 10 -sample_client high -patience 5 -niid -bp
-python experiments/FEMNIST/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex asyn -num_clients 10 -sample_client high -patience 7 -niid -bp
+python experiments/FEMNIST/Ablation_Prune_increase_FL_CMD.py -i 25 -ex wo_gmr -num_clients 10 -sample_client high -patience 5 -niid -bp
+python experiments/FEMNIST/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex wo_asyn -num_clients 10 -sample_client high -patience 7 -niid -bp
 python experiments/FEMNIST/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex mask_fed_avg -num_clients 10 -sample_client high -patience 7 -niid -bp
 python experiments/FEMNIST/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex gradient_avg -num_clients 10 -sample_client high -patience 7 -niid -bp
 python experiments/FEMNIST/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex re_gradient_avg -num_clients 10 -sample_client high -patience 7 -niid -bp -re
@@ -337,19 +337,19 @@ python experiments/FEMNIST/Ablation_Prune_increase_FL_CMD.py -i 25 -ic 2.0 -ex r
 The notebook-based FEMNIST comparison sweep uses the following patience settings:
 
 - IID:
-  - high: `pr_fl=5`, `fed_avg=5`, `fed_asyn=5`, `heterofl=5`, `fedrolex=10`, `fjord=5`, `fiarse=5`
-  - medium: `pr_fl=5`, `fed_avg=5`, `fed_asyn=5`, `heterofl=5`, `fedrolex=10`, `fjord=5`, `fiarse=5`
-  - low: `pr_fl=3`, `fed_avg=5`, `fed_asyn=5`, `heterofl=5`, `fedrolex=10`, `fjord=5`, `fiarse=5`
+  - high: `FedGMR=5`, `fed_avg=5`, `fed_asyn=5`, `heterofl=5`, `fedrolex=10`, `fjord=5`, `fiarse=5`
+  - medium: `FedGMR=5`, `fed_avg=5`, `fed_asyn=5`, `heterofl=5`, `fedrolex=10`, `fjord=5`, `fiarse=5`
+  - low: `FedGMR=3`, `fed_avg=5`, `fed_asyn=5`, `heterofl=5`, `fedrolex=10`, `fjord=5`, `fiarse=5`
 - Non-IID:
-  - high: `pr_fl=7`, `fed_avg=5`, `fed_asyn=5`, `heterofl=5`, `fedrolex=10`, `fjord=5`, `fiarse=5`
-  - medium: `pr_fl=3`, `fed_avg=5`, `fed_asyn=5`, `heterofl=5`, `fedrolex=10`, `fjord=5`, `fiarse=5`
-  - low: `pr_fl=1`, `fed_avg=5`, `fed_asyn=5`, `heterofl=5`, `fedrolex=10`, `fjord=5`, `fiarse=5`
+  - high: `FedGMR=7`, `fed_avg=5`, `fed_asyn=5`, `heterofl=5`, `fedrolex=10`, `fjord=5`, `fiarse=5`
+  - medium: `FedGMR=3`, `fed_avg=5`, `fed_asyn=5`, `heterofl=5`, `fedrolex=10`, `fjord=5`, `fiarse=5`
+  - low: `FedGMR=1`, `fed_avg=5`, `fed_asyn=5`, `heterofl=5`, `fedrolex=10`, `fjord=5`, `fiarse=5`
 
 ### ImageNet100
 
 ```bash
 source setenv.sh
-python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex pr_fl -ac wg -num_clients 10 -sample_client medium -patience 5 -niid
+python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex FedGMR -ac wg -num_clients 10 -sample_client medium -patience 5 -niid
 python experiments/ImageNet100/Prune_increase_FL_CMD.py -i 50 -ex heterofl -ac wg -num_clients 10 -sample_client medium -patience 10
 ```
 
@@ -358,11 +358,11 @@ Ablation-style ImageNet100 examples from the shell scripts keep the same patienc
 ```bash
 python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex buff -ac wg -num_clients 10 -sample_client medium -patience 5 -niid
 python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex mask_fed_avg -ac wg -num_clients 10 -sample_client medium -patience 5 -niid
-python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex asyn -ac wg -num_clients 10 -sample_client medium -patience 5 -niid
-python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex gmr -ac wg -num_clients 10 -sample_client medium -patience 10 -niid
+python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex wo_asyn -ac wg -num_clients 10 -sample_client medium -patience 5 -niid
+python experiments/ImageNet100/Ablation_Prune_increase_FL_CMD.py -i 50 -ex wo_gmr -ac wg -num_clients 10 -sample_client medium -patience 10 -niid
 ```
 
-The notebook-based ImageNet100 comparison sweep uses the following `pr_fl` patience settings:
+The notebook-based ImageNet100 comparison sweep uses the following `FedGMR` patience settings:
 
 - IID:
   - high: `40`
@@ -373,26 +373,26 @@ The notebook-based ImageNet100 comparison sweep uses the following `pr_fl` patie
   - medium: `30`
   - low: `30`
 
-The remaining baselines in the notebook use the exact experiment names shown in the notebook cells, while `pr_fl` is the one that explicitly encodes patience.
+The remaining baselines in the notebook use the exact experiment names shown in the notebook cells, while `FedGMR` is the one that explicitly encodes patience.
 
 ### StackOverflow
 
 ```bash
 source setenv.sh
-python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ex pr_fl -num_clients 10 -sample_client high -patience 7 -niid -bp --recover_trigger_mode time --recover_time_total 70000 --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0
-python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ex pr_fl -num_clients 10 -sample_client high -patience 10 -niid
+python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ex FedGMR -num_clients 10 -sample_client high -patience 7 -niid -bp --recover_trigger_mode time --recover_time_total 70000 --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0
+python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ex FedGMR -num_clients 10 -sample_client high -patience 10 -niid
 ```
 
 Ablation-style StackOverflow examples from the notebook use the same patience grid as the comparison sweep:
 
 ```bash
 python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ex gmr_fiarse -num_clients 10 -sample_client high -patience 7 -niid -bp --recover_trigger_mode time --recover_time_total 70000 --recover_time_points 0.2,0.4,0.6,0.8,1.0 --recover_time_ladder 0.05,0.1,0.2,0.5,1.0
-python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ex pr_fl -num_clients 10 -sample_client high -patience 10 -niid
+python experiments/stackoverflow/Prune_increase_FL_CMD.py -i 25 -ex FedGMR -num_clients 10 -sample_client high -patience 10 -niid
 python experiments/stackoverflow/Syn_modelhetero.py -i 25 -ex heterofl -num_clients 10 -sample_client low -patience 5 -niid
 python experiments/stackoverflow/Syn_modelhetero.py -i 25 -ex fjord -num_clients 10 -sample_client low -patience 5 -niid
 ```
 
-The notebook-based StackOverflow comparison sweep uses the following `pr_fl` patience settings:
+The notebook-based StackOverflow comparison sweep uses the following `FedGMR` patience settings:
 
 - IID:
   - high: `15`
@@ -403,7 +403,7 @@ The notebook-based StackOverflow comparison sweep uses the following `pr_fl` pat
   - medium: `10`
   - low: `20`
 
-As above, the other baselines use the explicit experiment names from the notebook cells, and `pr_fl` is the one that varies the patience value directly.
+As above, the other baselines use the explicit experiment names from the notebook cells, and `FedGMR` is the one that varies the patience value directly.
 
 ## Notes
 
