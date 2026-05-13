@@ -31,7 +31,7 @@ Around this core mechanism, the project also includes:
 
 This is the main idea figure of the paper. FedGMR starts from the observation that bandwidth-constrained clients can benefit from small sub-models early, but should gradually recover model capacity later to remain useful global contributors.
 
-![FedGMR framework](FedGMR/GMR_framework.png)
+![FedGMR framework](FedGMR/GMR_framework_logo.png)
 
 ### 2. Initial experimental validation of the motivation
 
